@@ -26,6 +26,10 @@
       <div class="meteorito meteoro-1"></div>
     </div>
 
+    <!-- AUDIO Y CONTROL DE MÚSICA -->
+    <audio id="audio-espacio" loop src="/fondo-estrellas-wister/musica.mp3"></audio>
+    <button id="btn-musica" class="btn-flotante">🎵 Activar Música</button>
+
     <!-- Capa 4: Interfaz de Cumpleaños -->
     <div class="ui-contenedor" id="ui-textos">
       <img src="/fondo-estrellas-wister/foto-annarella.jpg" alt="Annarella" id="foto-annarella" />
@@ -39,7 +43,7 @@
 
     <button id="btn-galaxia" class="oculto">PRESIONA AQUÍ</button>
 
-    <!-- Capa 5: Interfaz de la Galaxia (Oculta al inicio) -->
+    <!-- Capa 5: Interfaz de la Galaxia -->
     <div class="ui-galaxia oculto-total" id="ui-galaxia">
       <p class="mensaje-romantico">
         "El amor que siento por ti, no cabe ni en toda una galaxia, esta galaxia te la hago para expresar un pequeño porcentaje de mi amor por ti."
@@ -55,7 +59,27 @@
 
     <script>
       // ==========================================
-      // MOTOR 3D: SHADERS, NÚCLEO LUMINOSO Y CÁMARA
+      // CONTROL DE MÚSICA
+      // ==========================================
+      const audio = document.getElementById('audio-espacio') as HTMLAudioElement;
+      const btnMusica = document.getElementById('btn-musica') as HTMLButtonElement;
+      let musicaActiva = false;
+
+      btnMusica.addEventListener('click', () => {
+        if (musicaActiva) {
+          audio.pause();
+          btnMusica.innerHTML = '🎵 Activar Música';
+          btnMusica.classList.remove('activo');
+        } else {
+          audio.play();
+          btnMusica.innerHTML = '🔊 Música On';
+          btnMusica.classList.add('activo');
+        }
+        musicaActiva = !musicaActiva;
+      });
+
+      // ==========================================
+      // MOTOR 3D: SHADERS, NÚCLEO LUMINOSO Y CÁMARA PARALLAX
       // ==========================================
       
       // @ts-ignore
@@ -123,8 +147,8 @@
         const galaxiaGroup = new THREE.Group();
         scene.add(galaxiaGroup);
         galaxiaGroup.visible = false; 
-        galaxiaGroup.position.z = -25; // LA ALEJAMOS MÁS INICIALMENTE
-        galaxiaGroup.rotation.x = 0.8; // INCLINACIÓN AJUSTADA
+        galaxiaGroup.position.z = -25; 
+        galaxiaGroup.rotation.x = 0.8; 
         
         const starUniforms = { uTime: { value: 0 } };
         const materialEstrellas = new THREE.ShaderMaterial({
@@ -226,18 +250,25 @@
         galaxiaGroup.add(estrellas);
         galaxiaGroup.add(polvo);
 
-        // --- SISTEMA DE CÁMARA FLUIDA (LERP) ---
+        // --- SISTEMA DE CÁMARA FLUIDA Y PARALLAX ---
         let targetCameraZ = 12;
         let basePlanetY = 3;
         let targetPlanetY = basePlanetY;
-        
-        // LA GALAXIA SE ACERCA MENOS (ANTES 0, AHORA -15)
         let targetGalaxiaZ = -25; 
         
-        let tiempoAsteroide = 0;
-        let tiempoShader = 0;
-        let modoGalaxia = false;
-        let velocidadGalaxia = 0.02; 
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - window.innerWidth / 2) * 0.002;
+            mouseY = (event.clientY - window.innerHeight / 2) * 0.002;
+        });
+        document.addEventListener('touchmove', (event) => {
+            mouseX = (event.touches[0].clientX - window.innerWidth / 2) * 0.002;
+            mouseY = (event.touches[0].clientY - window.innerHeight / 2) * 0.002;
+        });
 
         function actualizarLayout3D() {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -265,6 +296,8 @@
         const btnVolver = document.getElementById('btn-volver') as HTMLButtonElement;
         
         let enViaje = false;
+        let modoGalaxia = false;
+        let velocidadGalaxia = 0.02; 
 
         btnGalaxia.addEventListener('click', () => {
             if(enViaje) return;
@@ -280,11 +313,11 @@
             document.getElementById('nebulosa')!.style.opacity = '0'; 
             
             galaxiaGroup.visible = true;
-            velocidadGalaxia = 0.02; 
+            velocidadGalaxia = 0.025; // Impulso Warp fuerte
             
-            targetCameraZ = 6; // LA CÁMARA NO SE ACERCA TANTO
+            targetCameraZ = 6; 
             targetPlanetY = -15; 
-            targetGalaxiaZ = -10; // LA GALAXIA QUEDA MÁS LEJOS PARA APRECIARLA MEJOR
+            targetGalaxiaZ = -10; 
             
             setTimeout(() => {
                 document.getElementById('ui-galaxia')!.classList.remove('oculto-total');
@@ -300,7 +333,7 @@
             
             targetCameraZ = 12;
             targetPlanetY = basePlanetY;
-            targetGalaxiaZ = -30; // ALEJAR GALAXIA
+            targetGalaxiaZ = -30; 
             
             setTimeout(() => {
                 modoGalaxia = false;
@@ -310,24 +343,33 @@
                 document.getElementById('lluvia-meteoritos')!.style.opacity = '1';
                 document.getElementById('universo-fondo')!.style.opacity = '1';
                 document.getElementById('nebulosa')!.style.opacity = '1'; 
-                
-                // RESTAURAR LA OPACIDAD DE LOS TEXTOS SI ESTABA AL FINAL DEL SCROLL
                 document.getElementById('ui-textos')!.style.opacity = '1';
                 
-                // Forzar actualización de scroll para mostrar los botones correctos
                 window.dispatchEvent(new Event('scroll'));
                 enViaje = false;
             }, 2000);
         });
 
+        let tiempoAsteroide = 0;
+        let tiempoShader = 0;
+
         function animate3D() {
           requestAnimationFrame(animate3D);
           
+          // --- PARALLAX FLUIDO ---
+          targetX = mouseX * 2;
+          targetY = mouseY * 2;
+          camera.position.x += (targetX - camera.position.x) * 0.02;
+          camera.position.y += (-targetY - camera.position.y) * 0.02;
+          camera.lookAt(scene.position);
+
+          // --- TRANSICIONES FLUIDAS ---
           camera.position.z += (targetCameraZ - camera.position.z) * 0.02;
           sistemaPlanetario.position.y += (targetPlanetY - sistemaPlanetario.position.y) * 0.03;
           asteroid.position.y = sistemaPlanetario.position.y + Math.sin(tiempoAsteroide * 1.5) * 6; 
           galaxiaGroup.position.z += (targetGalaxiaZ - galaxiaGroup.position.z) * 0.02;
 
+          // --- ANIMACIÓN PLANETAS ---
           earth.rotation.y += 0.001;       
           clouds.rotation.y += 0.0015; 
           moonPivot.rotation.y += 0.003;   
@@ -339,10 +381,10 @@
           asteroid.rotation.x += 0.02;
           asteroid.rotation.y += 0.01;
 
+          // --- ANIMACIÓN GALAXIA ---
           if(galaxiaGroup.visible) {
               tiempoShader += 0.01;
               starUniforms.uTime.value = tiempoShader;
-              
               velocidadGalaxia += (0.0001 - velocidadGalaxia) * 0.01; 
               galaxiaGroup.rotation.y += velocidadGalaxia;
           }
@@ -456,6 +498,28 @@
   #contenedor-3d { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2; pointer-events: none; }
   #lluvia-meteoritos { z-index: 3; pointer-events: none; transition: opacity 1.5s ease; }
   
+  /* --- BOTÓN FLOTANTE MÚSICA --- */
+  .btn-flotante {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    box-shadow: 0 0 15px rgba(255, 20, 147, 0.3);
+    transition: all 0.3s ease;
+  }
+  .btn-flotante:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+  .btn-flotante.activo { background: rgba(255, 20, 147, 0.4); border-color: #ff1493; box-shadow: 0 0 20px rgba(255, 20, 147, 0.8); }
+
   /* --- UI TIERRA --- */
   .ui-contenedor { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; transition: opacity 1s ease; }
 
@@ -491,7 +555,7 @@
   #btn-galaxia:hover { transform: translateX(-50%) scale(1.1); box-shadow: 0 0 30px rgba(255, 20, 147, 0.8), 0 0 60px rgba(0, 242, 254, 0.8); }
   #btn-galaxia.oculto { opacity: 0; pointer-events: none !important; transform: translateX(-50%) translateY(20px); }
 
-  /* --- UI GALAXIA (NUEVO) --- */
+  /* --- UI GALAXIA --- */
   .ui-galaxia {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     z-index: 60; display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -543,5 +607,8 @@
     100% { transform: translateX(-2500px) translateY(1750px) rotate(-35deg); opacity: 0; }
   }
 
-  @media (max-width: 768px) { .indicador h1 { font-size: 5vw; } }
+  @media (max-width: 768px) { 
+    .indicador h1 { font-size: 5vw; } 
+    .btn-flotante { top: 10px; right: 10px; font-size: 0.8rem; padding: 8px 15px; }
+  }
 </style>
