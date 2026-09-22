@@ -7,9 +7,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Feliz Cumpleaños Annarella</title>
+    <!-- FUENTES "CUCHI" Y ROMÁNTICAS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@500;700;900&display=swap" rel="stylesheet">
   </head>
   <body>
     <!-- Capa 0: Fondo oscuro -->
@@ -40,31 +41,32 @@
       <div class="mensaje-elegante" id="texto-cumple">
         <span class="feliz">FELIZ</span>
         <span class="cumple">CUMPLEAÑOS</span>
-        <span class="nombre">ANNARELLA</span>
+        <span class="nombre">Annarella</span>
       </div>
     </div>
 
-    <button id="btn-galaxia" class="oculto">PRESIONA AQUÍ</button>
+    <button id="btn-galaxia" class="oculto">PRESIONA AQUÍ ✨</button>
 
     <!-- Capa 5: Interfaz de la Galaxia -->
     <div class="ui-galaxia oculto-total" id="ui-galaxia">
       <p class="mensaje-romantico">
         "El amor que siento por ti, no cabe ni en toda una galaxia... esta creación te la hago para expresar un pequeño porcentaje de mi amor por ti."
       </p>
-      <button id="btn-constelacion">DESCUBRE TU REGALO ✨</button>
+      <button id="btn-constelacion">DESCUBRE TU REGALO 💖</button>
     </div>
 
     <!-- Capa 6: Interfaz Constelación de Libra -->
     <div class="ui-constelacion oculto-total" id="ui-constelacion">
-      <h2 class="titulo-constelacion">Constelación de Libra ♎</h2>
+      <h2 class="titulo-constelacion">Constelación de Libra</h2>
       <p class="mensaje-regalo">
         Tu regalo físico está esperando por ti. 🎁<br><br>
         Como pensábamos que te ibas de viaje el martes, decidimos resguardarlo, pero será entregado en el momento exacto que tú lo solicites.<br><br>
         Si deseas que te lo entreguemos personalmente, por favor escribe a este número:
       </p>
+      <!-- NÚMERO DE TELÉFONO INTEGRADO -->
       <a href="https://wa.me/5804247545638" target="_blank" class="numero-whatsapp">📱 0424-7545638</a>
       
-      <button id="btn-volver">VOLVER AL INICIO</button>
+      <button id="btn-volver">VOLVER AL INICIO 🌸</button>
     </div>
 
     <main class="contenedor-scroll" id="zona-scroll">
@@ -110,12 +112,11 @@
       });
 
       // ==========================================
-      // MOTOR 3D: GALAXIA INMERSIVA Y FUEGOS ARTIFICIALES
+      // MOTOR 3D: DISEÑO CUCHI, FLORES Y CORAZONES
       // ==========================================
       const THREE = window.THREE; 
       const contenedor3D = document.getElementById('contenedor-3d');
       const scene = new THREE.Scene();
-      // Cámara más inmersiva (FOV 60 para sentir la velocidad)
       const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
       
       const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -127,10 +128,10 @@
       const urlEarth = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg';
       const urlMoon = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/moon_1024.jpg';
 
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); scene.add(ambientLight);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); scene.add(ambientLight);
       const sunLight = new THREE.DirectionalLight(0xffffff, 2.5); sunLight.position.set(-10, 5, 5); scene.add(sunLight);
 
-      // --- 1. SISTEMA PLANETARIO ---
+      // --- SISTEMA PLANETARIO ---
       const sistemaPlanetario = new THREE.Group();
       scene.add(sistemaPlanetario);
 
@@ -150,7 +151,7 @@
           posiciones.setXYZ(i, posiciones.getX(i)*def, posiciones.getY(i)*def, posiciones.getZ(i)*def);
       }
       asteroidGeo.computeVertexNormals(); 
-      const asteroid = new THREE.Mesh(asteroidGeo, new THREE.MeshStandardMaterial({ map: textureLoader.load(urlMoon), color: 0xaaaaaa }));
+      const asteroid = new THREE.Mesh(asteroidGeo, new THREE.MeshStandardMaterial({ map: textureLoader.load(urlMoon), color: 0xdddddd }));
       scene.add(asteroid); 
 
       // --- SHADER ESTRELLAS ÉPICAS ---
@@ -176,7 +177,7 @@
           transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
       });
 
-      // --- 2. LA GALAXIA MASIVA ---
+      // --- LA GALAXIA (Tonos más pastel y románticos) ---
       const galaxiaGroup = new THREE.Group();
       scene.add(galaxiaGroup);
       galaxiaGroup.visible = false; galaxiaGroup.position.z = -150; galaxiaGroup.rotation.x = 1.0; 
@@ -185,21 +186,18 @@
           const geo = new THREE.BufferGeometry();
           const pos = new Float32Array(cantidad * 3), col = new Float32Array(cantidad * 3), siz = new Float32Array(cantidad), pha = new Float32Array(cantidad);
           
-          const colorCentro = new THREE.Color(0xffffff); // Blanco enceguecedor
-          const colorRosa = new THREE.Color(0xff1493);
-          const colorAzul = new THREE.Color(0x00f2fe);
+          const colorCentro = new THREE.Color(0xffffff); // Blanco
+          const colorRosa = new THREE.Color(0xff8da1);   // Rosa suave romántico
+          const colorVioleta = new THREE.Color(0xdda0dd); // Lila pastel
           
           for(let i = 0; i < cantidad; i++) {
-              // Núcleo mucho más denso y enorme
               const distribucion = Math.pow(Math.random(), 3); 
               const radio = distribucion * radioGalaxia; 
               
               const angulo = (i % 5) * ((Math.PI * 2) / 5);
               const giro = radio * 0.5; 
-              
               const dispersionRadio = 3.5;
               const dispersion = (Math.random() - 0.5) * (radio / radioGalaxia) * dispersionRadio;
-              
               const alturaBulge = (Math.random() - 0.5) * 6.0 * Math.exp(-radio/2);
 
               pos[i*3] = Math.cos(angulo + giro) * radio + (Math.random()-0.5)*dispersion;
@@ -207,13 +205,11 @@
               pos[i*3+2] = Math.sin(angulo + giro) * radio + (Math.random()-0.5)*dispersion;
               
               let mixedColor = colorCentro.clone();
-              if(radio > 1.5) mixedColor.lerp(i%2==0 ? colorRosa : colorAzul, radio / (radioGalaxia * 0.5));
-
+              if(radio > 1.5) mixedColor.lerp(i%2==0 ? colorRosa : colorVioleta, radio / (radioGalaxia * 0.5));
               let intensidad = Math.max(0.2, 1.5 - (radio / radioGalaxia));
               mixedColor.multiplyScalar(intensidad);
 
               col[i*3] = mixedColor.r; col[i*3+1] = mixedColor.g; col[i*3+2] = mixedColor.b;
-              // Estrellas más grandes para llenar la pantalla
               siz[i] = Math.random() * 3.5 + 1.0; 
               pha[i] = Math.random() * Math.PI * 2;
           }
@@ -223,7 +219,7 @@
       }
       galaxiaGroup.add(new THREE.Points(crearGalaxia(20000, 30), materialEstrellas));
 
-      // --- 3. CONSTELACIÓN DE LIBRA CON FUEGOS ARTIFICIALES ---
+      // --- CONSTELACIÓN DE LIBRA ESTÁTICA Y ROMÁNTICA ---
       const constelacionGroup = new THREE.Group();
       scene.add(constelacionGroup);
       constelacionGroup.position.z = -150; 
@@ -237,7 +233,6 @@
       const libPuntos = [p1, p2, p3, p4, p5];
       const libLineas = [p5, p1, p1, p2, p2, p3, p3, p4, p1, p3]; 
 
-      // Generar destellos de fuegos artificiales alrededor de cada punto
       const particulasPorPunto = 30;
       const totalParticulas = 5 + (5 * particulasPorPunto);
       
@@ -247,17 +242,15 @@
       const constPha = new Float32Array(totalParticulas);
 
       let idx = 0;
-      // Primero los 5 soles principales
       for(let i=0; i<5; i++) {
           constPos[idx*3] = libPuntos[i].x; constPos[idx*3+1] = libPuntos[i].y; constPos[idx*3+2] = libPuntos[i].z;
-          constCol[idx*3] = 1; constCol[idx*3+1] = 1; constCol[idx*3+2] = 1; // Blanco brillante
-          constSiz[idx] = 25.0; // Gigantes
+          constCol[idx*3] = 1; constCol[idx*3+1] = 1; constCol[idx*3+2] = 1; 
+          constSiz[idx] = 25.0; 
           constPha[idx] = Math.random() * Math.PI;
           idx++;
           
-          // Luego las partículas de fuegos artificiales esparcidas alrededor
           for(let j=0; j<particulasPorPunto; j++) {
-              const r = Math.random() * 1.5; // Radio de explosión
+              const r = Math.random() * 1.5; 
               const ang = Math.random() * Math.PI * 2;
               const xOff = Math.cos(ang) * r;
               const yOff = Math.sin(ang) * r;
@@ -266,14 +259,14 @@
               constPos[idx*3+1] = libPuntos[i].y + yOff; 
               constPos[idx*3+2] = libPuntos[i].z + (Math.random()-0.5);
               
-              // Colores mágicos turquesa/violeta para los destellos
-              const isCyan = Math.random() > 0.5;
-              constCol[idx*3] = isCyan ? 0.0 : 0.8; 
-              constCol[idx*3+1] = isCyan ? 0.9 : 0.2; 
-              constCol[idx*3+2] = 1.0; 
+              // Colores "cuchi": Rosa pastel y Dorado brillante
+              const isPink = Math.random() > 0.5;
+              constCol[idx*3] = isPink ? 1.0 : 1.0; 
+              constCol[idx*3+1] = isPink ? 0.6 : 0.9; 
+              constCol[idx*3+2] = isPink ? 0.8 : 0.5; 
               
               constSiz[idx] = Math.random() * 8.0 + 2.0; 
-              constPha[idx] = Math.random() * Math.PI * 2; // Parpadeo rápido
+              constPha[idx] = Math.random() * Math.PI * 2; 
               idx++;
           }
       } 
@@ -285,12 +278,56 @@
       constGeo.setAttribute('phase', new THREE.BufferAttribute(constPha, 1));
       constelacionGroup.add(new THREE.Points(constGeo, materialEstrellas)); 
 
-      // Líneas de la constelación brillantes
+      // Líneas rosadas románticas
       const lineGeo = new THREE.BufferGeometry().setFromPoints(libLineas);
-      const lineMat = new THREE.LineBasicMaterial({ color: 0x00f2fe, transparent: true, opacity: 0.9, linewidth: 3 });
+      const lineMat = new THREE.LineBasicMaterial({ color: 0xff99cc, transparent: true, opacity: 0.8, linewidth: 3 });
       constelacionGroup.add(new THREE.LineSegments(lineGeo, lineMat));
 
-      // --- SISTEMA DE CÁMARA Y ANIMACIONES ---
+      // --- LLUVIA DE FLORES Y CORAZONES 3D ---
+      function crearTexturaEmoji(emoji) {
+          const canvas = document.createElement('canvas');
+          canvas.width = 128; canvas.height = 128;
+          const ctx = canvas.getContext('2d');
+          ctx.font = '80px sans-serif';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.shadowColor = 'rgba(255,255,255,0.8)'; ctx.shadowBlur = 15;
+          ctx.fillText(emoji, 64, 70);
+          return new THREE.CanvasTexture(canvas);
+      }
+      
+      const texCorazon = crearTexturaEmoji('💖');
+      const texFlor = crearTexturaEmoji('🌸');
+      const texBrillo = crearTexturaEmoji('✨');
+
+      function crearParticulasCayendo(textura, count, size) {
+          const geo = new THREE.BufferGeometry();
+          const pos = new Float32Array(count * 3);
+          const vel = new Float32Array(count * 3);
+          for(let i=0; i<count; i++) {
+              pos[i*3] = (Math.random() - 0.5) * 80; // X ancho
+              pos[i*3+1] = (Math.random() - 0.5) * 80 + 40; // Y alto (empiezan arriba)
+              pos[i*3+2] = (Math.random() - 0.5) * 40 - 10; // Z profundidad
+              
+              vel[i*3] = (Math.random() - 0.5) * 0.02; // Viento suave X
+              vel[i*3+1] = - (Math.random() * 0.04 + 0.02); // Gravedad Y
+              vel[i*3+2] = (Math.random() - 0.5) * 0.02; // Viento suave Z
+          }
+          geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+          geo.setAttribute('velocity', new THREE.BufferAttribute(vel, 3));
+          
+          const mat = new THREE.PointsMaterial({ size: size, map: textura, transparent: true, depthWrite: false });
+          return new THREE.Points(geo, mat);
+      }
+
+      const lluviaCorazones = crearParticulasCayendo(texCorazon, 40, 3.0);
+      const lluviaFlores = crearParticulasCayendo(texFlor, 40, 3.0);
+      const lluviaBrillos = crearParticulasCayendo(texBrillo, 60, 2.5);
+      
+      constelacionGroup.add(lluviaCorazones);
+      constelacionGroup.add(lluviaFlores);
+      constelacionGroup.add(lluviaBrillos);
+
+      // --- SISTEMA DE CÁMARA Y NAVEGACIÓN ---
       let estado = 0; 
       let basePlanetY = 3;
       let targetPlanetY = basePlanetY;
@@ -305,7 +342,7 @@
           camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
           if (window.innerWidth < 768) { 
               basePlanetY = 4.5; sistemaPlanetario.position.set(1.2, basePlanetY, -4); sistemaPlanetario.scale.set(0.5, 0.5, 0.5); 
-              galaxiaGroup.scale.set(0.6, 0.6, 0.6); constelacionGroup.scale.set(0.6, 0.6, 0.6); 
+              galaxiaGroup.scale.set(0.6, 0.6, 0.6); constelacionGroup.scale.set(0.7, 0.7, 0.7); 
           } else { 
               basePlanetY = 3; sistemaPlanetario.position.set(4, basePlanetY, -2); sistemaPlanetario.scale.set(1, 1, 1); 
               galaxiaGroup.scale.set(1, 1, 1); constelacionGroup.scale.set(1, 1, 1); 
@@ -314,7 +351,6 @@
       }
       window.addEventListener('resize', actualizarLayout3D); actualizarLayout3D(); 
 
-      // --- NAVEGACIÓN CINEMÁTICA ---
       const btnGalaxia = document.getElementById('btn-galaxia');
       const btnConstelacion = document.getElementById('btn-constelacion');
       const btnVolver = document.getElementById('btn-volver');
@@ -331,12 +367,8 @@
           document.getElementById('nebulosa').style.opacity = '0'; 
           
           targetPlanetY = -40; 
-          
-          galaxiaGroup.visible = true; 
-          galaxiaGroup.position.z = -100; 
-          // LA GALAXIA QUEDA MUY CERCA (INMERSIÓN TOTAL)
-          targetGalaxiaZ = -3; 
-          targetCameraZ = 6; 
+          galaxiaGroup.visible = true; galaxiaGroup.position.z = -100; 
+          targetGalaxiaZ = -3; targetCameraZ = 6; 
           
           setTimeout(() => { document.getElementById('ui-galaxia').classList.remove('oculto-total'); enViaje = false; }, 3000);
       });
@@ -345,13 +377,9 @@
           if(enViaje) return; enViaje = true; estado = 2;
           
           document.getElementById('ui-galaxia').classList.add('oculto-total');
-          
-          // INGRESA A LA GALAXIA: La galaxia vuela violentamente hacia la cámara y la sobrepasa
           targetGalaxiaZ = 20; 
           
-          constelacionGroup.visible = true;
-          constelacionGroup.position.z = -80;
-          targetConstelacionZ = -5; // Acercamos la constelación para que luzca imponente
+          constelacionGroup.visible = true; constelacionGroup.position.z = -80; targetConstelacionZ = -6; 
           
           setTimeout(() => {
               galaxiaGroup.visible = false; 
@@ -364,37 +392,44 @@
           if(enViaje) return; enViaje = true; estado = 0;
           
           document.getElementById('ui-constelacion').classList.add('oculto-total');
-          
-          // Constelación nos pasa por encima
           targetConstelacionZ = 20; 
-          
-          targetCameraZ = 12; 
-          targetPlanetY = basePlanetY; 
-          targetGalaxiaZ = -150; 
+          targetCameraZ = 12; targetPlanetY = basePlanetY; targetGalaxiaZ = -150; 
           
           setTimeout(() => {
               constelacionGroup.visible = false;
-              
               document.getElementById('zona-scroll').style.display = 'block';
               document.getElementById('lluvia-meteoritos').style.opacity = '1';
               document.getElementById('universo-fondo').style.opacity = '1';
               document.getElementById('nebulosa').style.opacity = '1'; 
               document.getElementById('ui-textos').style.opacity = '1';
-              
               window.dispatchEvent(new Event('scroll'));
               enViaje = false;
           }, 2500);
       });
 
       let tiempoAsteroide = 0; let tiempoShader = 0;
+      
+      // Función para animar la caída de emojis
+      function animarLluvia(puntos) {
+          const posiciones = puntos.geometry.attributes.position.array;
+          const velocidades = puntos.geometry.attributes.velocity.array;
+          for(let i=0; i<posiciones.length/3; i++) {
+              posiciones[i*3] += velocidades[i*3];
+              posiciones[i*3+1] += velocidades[i*3+1]; // Cae en Y
+              posiciones[i*3+2] += velocidades[i*3+2];
+              // Si cae muy abajo, vuelve arriba
+              if(posiciones[i*3+1] < -30) {
+                  posiciones[i*3+1] = 40;
+                  posiciones[i*3] = (Math.random() - 0.5) * 80;
+              }
+          }
+          puntos.geometry.attributes.position.needsUpdate = true;
+      }
+
       function animate3D() {
         requestAnimationFrame(animate3D);
-        
-        camera.position.x += (mouseX*2 - camera.position.x) * 0.05; 
-        camera.position.y += (-mouseY*2 - camera.position.y) * 0.05; 
-        camera.lookAt(scene.position);
+        camera.position.x += (mouseX*2 - camera.position.x) * 0.05; camera.position.y += (-mouseY*2 - camera.position.y) * 0.05; camera.lookAt(scene.position);
 
-        // Movimientos acelerados de salto hiperespacial
         camera.position.z += (targetCameraZ - camera.position.z) * 0.04;
         sistemaPlanetario.position.y += (targetPlanetY - sistemaPlanetario.position.y) * 0.03;
         asteroid.position.y = sistemaPlanetario.position.y + Math.sin(tiempoAsteroide * 1.5) * 6; 
@@ -402,22 +437,18 @@
         galaxiaGroup.position.z += (targetGalaxiaZ - galaxiaGroup.position.z) * 0.03;
         constelacionGroup.position.z += (targetConstelacionZ - constelacionGroup.position.z) * 0.04;
 
-        earth.rotation.y += 0.001; 
-        moonPivot.rotation.y += 0.003; moon.rotation.y += 0.002;        
-        
-        tiempoAsteroide += 0.005; 
-        asteroid.position.x = Math.cos(tiempoAsteroide*0.8)*8; 
-        asteroid.position.z = Math.sin(tiempoAsteroide*1.2)*5; 
-        asteroid.rotation.x += 0.02; asteroid.rotation.y += 0.01;
+        earth.rotation.y += 0.001; moonPivot.rotation.y += 0.003; moon.rotation.y += 0.002;        
+        tiempoAsteroide += 0.005; asteroid.position.x = Math.cos(tiempoAsteroide*0.8)*8; asteroid.position.z = Math.sin(tiempoAsteroide*1.2)*5; asteroid.rotation.x += 0.02; asteroid.rotation.y += 0.01;
         
         tiempoShader += 0.01; starUniforms.uTime.value = tiempoShader;
 
         if(galaxiaGroup.visible) { galaxiaGroup.rotation.y += 0.0015; galaxiaGroup.rotation.z += 0.0005; }
         
-        // Animación dinámica para la constelación
         if(constelacionGroup.visible) { 
-            constelacionGroup.rotation.y += 0.001; 
-            constelacionGroup.rotation.z = Math.sin(tiempoShader*0.5)*0.03; // Balanceo suave
+            // CONSTELACIÓN TOTALMENTE ESTÁTICA, solo animamos la lluvia de flores
+            animarLluvia(lluviaCorazones);
+            animarLluvia(lluviaFlores);
+            animarLluvia(lluviaBrillos);
         }
 
         renderer.render(scene, camera);
@@ -460,7 +491,7 @@
       function animarFondo() {
         ctxFondo.clearRect(0, 0, width, height); const t = Date.now() * 0.001; 
         estrellasFondo.forEach(e => {
-          ctxFondo.fillStyle = `rgba(255, 255, 255, ${0.3 + (Math.sin(t * e.velocidadBrillo + e.faseBrillo) * 0.4)})`;
+          ctxFondo.fillStyle = `rgba(255, 182, 193, ${0.3 + (Math.sin(t * e.velocidadBrillo + e.faseBrillo) * 0.4)})`; // Estrellas rosadas
           ctxFondo.beginPath(); ctxFondo.arc(e.x, e.y, e.tamano, 0, Math.PI * 2); ctxFondo.fill();
         }); requestAnimationFrame(animarFondo);
       }
@@ -470,54 +501,63 @@
 </html>
 
 <style is:global>
-  body, html { margin: 0; padding: 0; background-color: #000000; color: white; font-family: 'Montserrat', sans-serif; overflow-x: hidden; }
-  .nebulosa { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 20% 30%, rgba(55, 20, 80, 0.4) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(20, 60, 100, 0.3) 0%, transparent 50%), radial-gradient(circle at 50% 100%, rgba(100, 20, 60, 0.25) 0%, transparent 60%); z-index: 0; transition: opacity 1.5s ease; }
+  body, html { margin: 0; padding: 0; background-color: #0b0212; /* Morado espacial muy oscuro */ color: white; font-family: 'Quicksand', sans-serif; overflow-x: hidden; }
+  .nebulosa { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 20% 30%, rgba(90, 20, 80, 0.4) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(40, 20, 100, 0.3) 0%, transparent 50%), radial-gradient(circle at 50% 100%, rgba(120, 20, 60, 0.25) 0%, transparent 60%); z-index: 0; transition: opacity 1.5s ease; }
   #universo-fondo { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; transition: opacity 1.5s ease; }
   #contenedor-3d { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2; pointer-events: none; }
   #lluvia-meteoritos { z-index: 3; pointer-events: none; transition: opacity 1.5s ease; }
   
-  .btn-flotante { position: fixed; top: 20px; right: 20px; z-index: 100; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); color: white; padding: 10px 20px; border-radius: 30px; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; box-shadow: 0 0 15px rgba(255, 20, 147, 0.3); transition: all 0.3s ease; }
-  .btn-flotante:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
-  .btn-flotante.activo { background: rgba(255, 20, 147, 0.4); border-color: #ff1493; box-shadow: 0 0 20px rgba(255, 20, 147, 0.8); }
+  .btn-flotante { position: fixed; top: 20px; right: 20px; z-index: 100; background: rgba(255, 182, 193, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255, 182, 193, 0.4); color: #fff0f5; padding: 10px 20px; border-radius: 30px; font-family: 'Quicksand', sans-serif; font-weight: 700; font-size: 0.9rem; cursor: pointer; box-shadow: 0 0 15px rgba(255, 105, 180, 0.3); transition: all 0.3s ease; }
+  .btn-flotante:hover { background: rgba(255, 182, 193, 0.3); transform: scale(1.05); }
+  .btn-flotante.activo { background: rgba(255, 105, 180, 0.5); border-color: #ff69b4; box-shadow: 0 0 20px rgba(255, 105, 180, 0.8); }
 
   .ui-contenedor { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; transition: opacity 1s ease; }
-  #foto-annarella { position: absolute; top: 15vh; left: 50%; transform: translate(-50%, 50px); width: clamp(160px, 40vw, 300px); height: clamp(160px, 40vw, 300px); object-fit: cover; border-radius: 50%; box-shadow: 0 0 40px rgba(255, 105, 180, 0.6), 0 0 80px rgba(0, 242, 254, 0.4); border: 4px solid rgba(255, 255, 255, 0.9); opacity: 0; transition: transform 0.1s linear, opacity 0.1s linear; }
+  #foto-annarella { position: absolute; top: 15vh; left: 50%; transform: translate(-50%, 50px); width: clamp(160px, 40vw, 300px); height: clamp(160px, 40vw, 300px); object-fit: cover; border-radius: 50%; box-shadow: 0 0 40px rgba(255, 105, 180, 0.6), 0 0 80px rgba(255, 182, 193, 0.4); border: 5px solid rgba(255, 240, 245, 0.9); opacity: 0; transition: transform 0.1s linear, opacity 0.1s linear; }
 
-  .mensaje-elegante { position: absolute; top: calc(15vh + clamp(160px, 40vw, 300px) + 30px); left: 50%; transform: translate(-50%, 30px); text-align: center; display: flex; flex-direction: column; gap: 10px; opacity: 0; transition: transform 0.1s linear, opacity 0.1s linear; }
-  .mensaje-elegante span { line-height: 1; letter-spacing: 4px; text-shadow: 0 0 20px rgba(255, 105, 180, 0.8), 0 0 40px rgba(0, 242, 254, 0.6); }
-  .feliz { font-size: clamp(2rem, 8vw, 4rem); font-weight: 800; color: #fff; }
-  .cumple { font-size: clamp(2.5rem, 10vw, 5rem); font-weight: 900; color: #fff; background: -webkit-linear-gradient(45deg, #ff69b4, #00f2fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .nombre { font-size: clamp(2rem, 8vw, 4rem); font-weight: 800; color: #fff; }
+  .mensaje-elegante { position: absolute; top: calc(15vh + clamp(160px, 40vw, 300px) + 20px); left: 50%; transform: translate(-50%, 30px); text-align: center; display: flex; flex-direction: column; gap: 5px; opacity: 0; transition: transform 0.1s linear, opacity 0.1s linear; }
+  .mensaje-elegante span { line-height: 1; letter-spacing: 2px; text-shadow: 0 0 20px rgba(255, 105, 180, 0.8), 0 0 40px rgba(255, 182, 193, 0.6); }
+  .feliz { font-family: 'Quicksand', sans-serif; font-size: clamp(1.5rem, 6vw, 3rem); font-weight: 700; color: #fff; }
+  .cumple { font-family: 'Quicksand', sans-serif; font-size: clamp(2rem, 8vw, 4rem); font-weight: 900; color: #fff; background: -webkit-linear-gradient(45deg, #ff758c, #ff7eb3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .nombre { font-family: 'Dancing Script', cursive; font-size: clamp(3rem, 12vw, 6rem); text-transform: capitalize; color: #ffebf0; text-shadow: 0 0 30px rgba(255, 105, 180, 1); margin-top: -10px; }
 
-  #btn-galaxia { position: fixed; bottom: 10vh; left: 50%; transform: translateX(-50%); padding: 15px 40px; font-size: 1.2rem; font-weight: 800; font-family: 'Montserrat', sans-serif; color: white; background: linear-gradient(45deg, #ff1493, #00f2fe); border: none; border-radius: 30px; cursor: pointer; z-index: 9999; pointer-events: auto; box-shadow: 0 0 20px rgba(255, 20, 147, 0.5), 0 0 40px rgba(0, 242, 254, 0.5); transition: all 0.5s ease; animation: palpitar 2s infinite; touch-action: manipulation; }
-  #btn-galaxia:hover, #btn-galaxia:active { transform: translateX(-50%) scale(1.1); box-shadow: 0 0 30px rgba(255, 20, 147, 0.8), 0 0 60px rgba(0, 242, 254, 0.8); }
-  #btn-galaxia.oculto { opacity: 0; pointer-events: none !important; transform: translateX(-50%) translateY(20px); }
+  /* BOTONES ROMÁNTICOS */
+  #btn-galaxia, #btn-constelacion, #btn-volver { 
+      font-family: 'Quicksand', sans-serif; font-weight: 800; font-size: 1.1rem; letter-spacing: 1px;
+      color: white; background: linear-gradient(45deg, #ff758c 0%, #ff7eb3 100%);
+      border: 2px solid rgba(255,255,255,0.4); border-radius: 50px; cursor: pointer; pointer-events: auto; touch-action: manipulation;
+      box-shadow: 0 10px 20px rgba(255, 117, 140, 0.4), 0 0 30px rgba(255, 126, 179, 0.4);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+  }
+  #btn-galaxia { position: fixed; bottom: 10vh; left: 50%; transform: translateX(-50%); padding: 15px 40px; z-index: 9999; animation: flotarBtn 3s infinite ease-in-out; }
+  #btn-constelacion, #btn-volver { padding: 15px 35px; margin-top: 20px; }
+  
+  #btn-galaxia:hover, #btn-constelacion:hover, #btn-volver:hover { transform: translateX(-50%) translateY(-5px); box-shadow: 0 15px 25px rgba(255, 117, 140, 0.6), 0 0 50px rgba(255, 126, 179, 0.6); background: linear-gradient(45deg, #ff7eb3 0%, #ff758c 100%); }
+  #btn-galaxia.oculto { opacity: 0; pointer-events: none !important; transform: translateX(-50%) translateY(30px); }
+
+  @keyframes flotarBtn { 0% { transform: translateX(-50%) translateY(0px); } 50% { transform: translateX(-50%) translateY(-8px); box-shadow: 0 15px 25px rgba(255, 117, 140, 0.5), 0 0 40px rgba(255, 126, 179, 0.6); } 100% { transform: translateX(-50%) translateY(0px); } }
 
   /* UI GALAXIA Y CONSTELACIÓN */
-  .ui-galaxia, .ui-constelacion { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 60; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle, rgba(0,0,0,0.5) 0%, transparent 90%); transition: opacity 1.5s ease, transform 1.5s ease; }
-  .oculto-total { opacity: 0; transform: scale(1.1); pointer-events: none; }
+  .ui-galaxia, .ui-constelacion { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 60; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle, rgba(20,5,30,0.6) 0%, transparent 90%); transition: opacity 1.5s ease, transform 1.5s ease; }
+  .oculto-total { opacity: 0; transform: scale(1.05); pointer-events: none; }
   
-  .mensaje-romantico { width: 85%; max-width: 600px; text-align: center; font-size: clamp(1.2rem, 4vw, 1.8rem); font-weight: 400; line-height: 1.5; color: #fff; text-shadow: 0 0 10px rgba(255, 105, 180, 0.8), 0 0 20px rgba(0, 242, 254, 0.6); margin-bottom: 40px; }
+  .mensaje-romantico { width: 85%; max-width: 600px; text-align: center; font-family: 'Quicksand', sans-serif; font-size: clamp(1.2rem, 4.5vw, 1.8rem); font-weight: 600; line-height: 1.6; color: #fff0f5; text-shadow: 0 0 15px rgba(255, 105, 180, 0.8), 0 0 30px rgba(255, 182, 193, 0.6); margin-bottom: 30px; }
   
-  .titulo-constelacion { font-size: clamp(1.5rem, 5vw, 2.5rem); font-weight: 900; color: #00f2fe; text-shadow: 0 0 20px #00f2fe; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;}
-  .mensaje-regalo { width: 85%; max-width: 600px; text-align: center; font-size: clamp(1rem, 3.5vw, 1.3rem); font-weight: 400; line-height: 1.6; color: #e2e8f0; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); margin-bottom: 30px; }
+  .titulo-constelacion { font-family: 'Dancing Script', cursive; font-size: clamp(3rem, 10vw, 5rem); color: #ffb6c1; text-shadow: 0 0 25px #ff69b4, 0 0 50px #ff1493; margin-bottom: 20px; font-weight: 700; text-align: center; line-height: 1.2; }
   
-  .numero-whatsapp { font-size: clamp(1.2rem, 4.5vw, 1.8rem); font-weight: 900; color: #25D366; text-decoration: none; padding: 10px 25px; background: rgba(37, 211, 102, 0.1); border: 2px solid #25D366; border-radius: 30px; margin-bottom: 40px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(37, 211, 102, 0.4); }
-  .numero-whatsapp:hover { transform: scale(1.05); background: rgba(37, 211, 102, 0.2); box-shadow: 0 0 30px rgba(37, 211, 102, 0.8); }
-
-  #btn-constelacion, #btn-volver { padding: 15px 35px; font-size: 1.1rem; font-weight: 800; font-family: 'Montserrat', sans-serif; color: white; background: transparent; border: 2px solid #00f2fe; border-radius: 30px; cursor: pointer; pointer-events: auto; touch-action: manipulation; box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); transition: all 0.3s ease; }
-  #btn-constelacion:hover, #btn-volver:hover { background: rgba(0, 242, 254, 0.2); box-shadow: 0 0 25px rgba(0, 242, 254, 0.6); transform: scale(1.05); }
-
-  @keyframes palpitar { 0% { box-shadow: 0 0 20px rgba(255, 20, 147, 0.5), 0 0 40px rgba(0, 242, 254, 0.5); } 50% { box-shadow: 0 0 40px rgba(255, 20, 147, 0.8), 0 0 80px rgba(0, 242, 254, 0.8); } 100% { box-shadow: 0 0 20px rgba(255, 20, 147, 0.5), 0 0 40px rgba(0, 242, 254, 0.5); } }
+  .mensaje-regalo { width: 85%; max-width: 550px; text-align: center; font-family: 'Quicksand', sans-serif; font-size: clamp(1rem, 3.8vw, 1.3rem); font-weight: 500; line-height: 1.6; color: #ffe4e1; text-shadow: 0 0 10px rgba(255, 182, 193, 0.5); margin-bottom: 30px; background: rgba(255, 192, 203, 0.1); padding: 20px; border-radius: 20px; backdrop-filter: blur(5px); border: 1px solid rgba(255, 182, 193, 0.2); }
+  
+  .numero-whatsapp { font-family: 'Quicksand', sans-serif; font-size: clamp(1.2rem, 4.5vw, 1.8rem); font-weight: 800; color: #fff; text-decoration: none; padding: 12px 30px; background: linear-gradient(45deg, #25D366, #1da851); border-radius: 30px; margin-bottom: 30px; transition: all 0.3s ease; box-shadow: 0 10px 20px rgba(37, 211, 102, 0.4), 0 0 30px rgba(37, 211, 102, 0.6); }
+  .numero-whatsapp:hover { transform: scale(1.05) translateY(-3px); box-shadow: 0 15px 25px rgba(37, 211, 102, 0.5), 0 0 40px rgba(37, 211, 102, 0.8); }
 
   .contenedor-scroll { position: relative; height: 350vh; z-index: 20; }
   .indicador { position: fixed; top: 5%; width: 100%; text-align: center; pointer-events: none; transition: opacity 0.5s; text-shadow: 0px 0px 10px rgba(255,255,255,0.5); }
 
+  /* Meteoritos rosados/mágicos */
   .estrella-fugaz, .meteorito { position: fixed; border-radius: 50%; opacity: 0; }
-  .estrella-fugaz { width: 3px; height: 3px; background: white; box-shadow: 0 0 10px white; }
-  .estrella-fugaz::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); width: 150px; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.8), transparent); }
-  .meteorito { width: 8px; height: 8px; background: #ffdb58; box-shadow: 0 0 20px #ffdb58, 0 0 40px #ff8c00; }
-  .meteorito::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); width: 300px; height: 4px; background: linear-gradient(90deg, #ff8c00, #ff0000, transparent); }
+  .estrella-fugaz { width: 3px; height: 3px; background: #fff0f5; box-shadow: 0 0 10px #fff0f5; }
+  .estrella-fugaz::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); width: 150px; height: 1px; background: linear-gradient(90deg, rgba(255,182,193,0.8), transparent); }
+  .meteorito { width: 6px; height: 6px; background: #ff9a9e; box-shadow: 0 0 20px #ff9a9e, 0 0 40px #fecfef; }
+  .meteorito::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); width: 250px; height: 3px; background: linear-gradient(90deg, #ff9a9e, #ffb6c1, transparent); }
 
   .fugaz-1 { top: 20%; left: 100%; animation: animarFugaz 7s linear infinite; animation-delay: 1s; }
   .fugaz-2 { top: 60%; left: 110%; animation: animarFugaz 11s linear infinite; animation-delay: 4s; }
