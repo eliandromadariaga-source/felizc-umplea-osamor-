@@ -383,22 +383,40 @@
       }
       galaxiaGroup.add(new THREE.Points(crearGalaxiaMágica(25000, 32), materialEstrellas));
 
-      // --- 3. CONSTELACIÓN DE VIRGO ---
+      // --- 3. CONSTELACIÓN REAL DE VIRGO ♍ ---
       const constelacionGroup = new THREE.Group();
       scene.add(constelacionGroup);
       constelacionGroup.position.z = -150; 
       constelacionGroup.visible = false;
 
-      const p1 = new THREE.Vector3(-4, -2, 0); 
-      const p2 = new THREE.Vector3(0, 3, 0);   
-      const p3 = new THREE.Vector3(4, -2, 0);  
-      const p4 = new THREE.Vector3(6, 1, 0);   
-      const p5 = new THREE.Vector3(-6, 1, 0);  
-      const libPuntos = [p1, p2, p3, p4, p5];
-      const libLineas = [p5, p1, p1, p2, p2, p3, p3, p4, p1, p3]; 
+      // Puntos astronómicos representativos de Virgo
+      const p1 = new THREE.Vector3(-4.0, 3.5, 0);   // Zavijava
+      const p2 = new THREE.Vector3(-2.0, 1.8, 0);   // Zaniah
+      const p3 = new THREE.Vector3(0.0, 0.5, 0);    // Porrima (Centro)
+      const p4 = new THREE.Vector3(2.0, 1.2, 0);    // Auva
+      const p5 = new THREE.Vector3(4.5, 2.5, 0);    // Vindemiatrix
+      const p6 = new THREE.Vector3(-1.5, -1.8, 0);  // Heze
+      const p7 = new THREE.Vector3(2.0, -2.5, 0);   // Spica (Estrella principal)
+      const p8 = new THREE.Vector3(-3.0, -4.5, 0);  // Syrma
+      const p9 = new THREE.Vector3(-4.0, -6.5, 0);  // Khambalia
+      const p10 = new THREE.Vector3(3.5, -5.0, 0);  // Kang
 
-      const particulasPorPunto = 30;
-      const totalParticulas = 5 + (5 * particulasPorPunto);
+      const virPuntos = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10];
+      const virLineas = [
+          p1, p2,  // Zavijava a Zaniah
+          p2, p3,  // Zaniah a Porrima
+          p3, p4,  // Porrima a Auva
+          p4, p5,  // Auva a Vindemiatrix
+          p3, p6,  // Porrima a Heze
+          p4, p7,  // Auva a Spica
+          p6, p7,  // Heze a Spica
+          p6, p8,  // Heze a Syrma
+          p8, p9,  // Syrma a Khambalia
+          p7, p10  // Spica a Kang
+      ];
+
+      const particulasPorPunto = 25;
+      const totalParticulas = virPuntos.length + (virPuntos.length * particulasPorPunto);
       
       const constPos = new Float32Array(totalParticulas * 3);
       const constCol = new Float32Array(totalParticulas * 3); 
@@ -406,24 +424,33 @@
       const constPha = new Float32Array(totalParticulas);
 
       let idx = 0;
-      for(let i=0; i<5; i++) {
-          constPos[idx*3] = libPuntos[i].x; constPos[idx*3+1] = libPuntos[i].y; constPos[idx*3+2] = libPuntos[i].z;
-          constCol[idx*3] = 1; constCol[idx*3+1] = 1; constCol[idx*3+2] = 1; 
-          constSiz[idx] = 25.0; 
+      for(let i = 0; i < virPuntos.length; i++) {
+          // Estrella principal
+          constPos[idx*3] = virPuntos[i].x; 
+          constPos[idx*3+1] = virPuntos[i].y; 
+          constPos[idx*3+2] = virPuntos[i].z;
+          
+          constCol[idx*3] = 1.0; 
+          constCol[idx*3+1] = 0.9; 
+          constCol[idx*3+2] = 1.0; 
+
+          // Hacer a Spica (índice 6) más radiante
+          constSiz[idx] = (i === 6) ? 35.0 : 25.0; 
           constPha[idx] = Math.random() * Math.PI;
           idx++;
           
-          for(let j=0; j<particulasPorPunto; j++) {
+          // Polvo de estrellas alrededor de cada punto
+          for(let j = 0; j < particulasPorPunto; j++) {
               const r = Math.random() * 1.5; 
               const ang = Math.random() * Math.PI * 2;
-              constPos[idx*3] = libPuntos[i].x + Math.cos(ang) * r; 
-              constPos[idx*3+1] = libPuntos[i].y + Math.sin(ang) * r; 
-              constPos[idx*3+2] = libPuntos[i].z + (Math.random()-0.5);
+              constPos[idx*3] = virPuntos[i].x + Math.cos(ang) * r; 
+              constPos[idx*3+1] = virPuntos[i].y + Math.sin(ang) * r; 
+              constPos[idx*3+2] = virPuntos[i].z + (Math.random()-0.5);
               
               const isPink = Math.random() > 0.5;
-              constCol[idx*3] = isPink ? 1.0 : 1.0; 
-              constCol[idx*3+1] = isPink ? 0.6 : 0.9; 
-              constCol[idx*3+2] = isPink ? 0.8 : 0.5; 
+              constCol[idx*3] = isPink ? 1.0 : 0.9; 
+              constCol[idx*3+1] = isPink ? 0.6 : 0.8; 
+              constCol[idx*3+2] = isPink ? 0.85 : 1.0; 
               
               constSiz[idx] = Math.random() * 8.0 + 2.0; 
               constPha[idx] = Math.random() * Math.PI * 2; 
@@ -438,8 +465,8 @@
       constGeo.setAttribute('phase', new THREE.BufferAttribute(constPha, 1));
       constelacionGroup.add(new THREE.Points(constGeo, materialEstrellas)); 
 
-      const lineGeo = new THREE.BufferGeometry().setFromPoints(libLineas);
-      const lineMat = new THREE.LineBasicMaterial({ color: 0xff99cc, transparent: true, opacity: 0.8, linewidth: 3 });
+      const lineGeo = new THREE.BufferGeometry().setFromPoints(virLineas);
+      const lineMat = new THREE.LineBasicMaterial({ color: 0xffb6c1, transparent: true, opacity: 0.8, linewidth: 3 });
       constelacionGroup.add(new THREE.LineSegments(lineGeo, lineMat));
 
       // --- LLUVIA DE FLORES Y CORAZONES 3D ---
