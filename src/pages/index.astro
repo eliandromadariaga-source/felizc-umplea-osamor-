@@ -26,13 +26,13 @@
       <div class="meteorito meteoro-1"></div>
     </div>
 
-    <!-- AUDIO Y CONTROL DE MÚSICA -->
-    <audio id="audio-espacio" loop src="/fondo-estrellas-wister/musica.mp3"></audio>
+    <!-- REPRODUCTOR DE YOUTUBE INVISIBLE -->
+    <div id="yt-player" style="position: absolute; top: -9999px; left: -9999px;"></div>
     <button id="btn-musica" class="btn-flotante">🎵 Activar Música</button>
 
     <!-- Capa 4: Interfaz de Cumpleaños -->
     <div class="ui-contenedor" id="ui-textos">
-      <img src="/fondo-estrellas-wister/foto-annarella.jpg" alt="Annarella" id="foto-annarella" />
+      <img src="foto-annarella.jpg" alt="Annarella" id="foto-annarella" />
       
       <div class="mensaje-elegante" id="texto-cumple">
         <span class="feliz">FELIZ</span>
@@ -41,7 +41,6 @@
       </div>
     </div>
 
-    <!-- BOTÓN REPARADO (Prioridad Máxima) -->
     <button id="btn-galaxia" class="oculto">PRESIONA AQUÍ</button>
 
     <!-- Capa 5: Interfaz de la Galaxia -->
@@ -58,24 +57,44 @@
       </div>
     </main>
 
-    <!-- CARGA SEGURA DEL MOTOR 3D -->
+    <!-- CARGA DEL MOTOR 3D Y LA API DE YOUTUBE -->
     <script is:inline src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+    <script is:inline src="https://www.youtube.com/iframe_api"></script>
 
     <script>
       // ==========================================
-      // CONTROL DE MÚSICA
+      // CONTROL DE MÚSICA (VÍA YOUTUBE INVISIBLE)
       // ==========================================
-      const audio = document.getElementById('audio-espacio') as HTMLAudioElement;
       const btnMusica = document.getElementById('btn-musica') as HTMLButtonElement;
       let musicaActiva = false;
+      let ytPlayer: any = null;
+
+      // YouTube exige que esta función sea global
+      (window as any).onYouTubeIframeAPIReady = function() {
+        ytPlayer = new (window as any).YT.Player('yt-player', {
+          height: '0',
+          width: '0',
+          videoId: 'FMzsC-2aVtU', // ID del track espacial relajante
+          playerVars: {
+            'autoplay': 0,
+            'controls': 0,
+            'loop': 1,
+            'playlist': 'FMzsC-2aVtU' // Necesario para hacer loop infinito
+          }
+        });
+      };
 
       btnMusica.addEventListener('click', () => {
+        // Si el video de YouTube aún no ha cargado, ignorar el clic
+        if (!ytPlayer || typeof ytPlayer.playVideo !== 'function') return;
+
         if (musicaActiva) {
-          audio.pause();
+          ytPlayer.pauseVideo();
           btnMusica.innerHTML = '🎵 Activar Música';
           btnMusica.classList.remove('activo');
         } else {
-          audio.play();
+          ytPlayer.setVolume(100);
+          ytPlayer.playVideo();
           btnMusica.innerHTML = '🔊 Música On';
           btnMusica.classList.add('activo');
         }
@@ -83,9 +102,9 @@
       });
 
       // ==========================================
-      // MOTOR 3D: AHORA USANDO LA VARIABLE GLOBAL SEGURA
+      // MOTOR 3D Y SHADERS
       // ==========================================
-      const THREE = (window as any).THREE; // Resuelve todos los problemas de TypeScript y Carga
+      const THREE = (window as any).THREE; 
       
       const contenedor3D = document.getElementById('contenedor-3d') as HTMLDivElement;
       const scene = new THREE.Scene();
@@ -110,7 +129,6 @@
       sunLight.position.set(-10, 5, 5); 
       scene.add(sunLight);
 
-      // --- SISTEMA PLANETARIO ---
       const sistemaPlanetario = new THREE.Group();
       scene.add(sistemaPlanetario);
 
@@ -143,7 +161,6 @@
       const asteroid = new THREE.Mesh(asteroidGeo, asteroidMat);
       scene.add(asteroid); 
 
-      // --- GALAXIA SUPER REALISTA ---
       const galaxiaGroup = new THREE.Group();
       scene.add(galaxiaGroup);
       galaxiaGroup.visible = false; 
@@ -239,7 +256,6 @@
       galaxiaGroup.add(estrellas);
       galaxiaGroup.add(polvo);
 
-      // --- CÁMARA FLUIDA Y PARALLAX ---
       let targetCameraZ = 12;
       let basePlanetY = 3;
       let targetPlanetY = basePlanetY;
@@ -279,23 +295,22 @@
       window.addEventListener('resize', actualizarLayout3D);
       actualizarLayout3D(); 
 
-      // --- EVENTOS DE BOTONES SEGUROS ---
-      const btnGalaxia = document.getElementById('btn-galaxia') as HTMLButtonElement;
+      const btnGalaxia2 = document.getElementById('btn-galaxia') as HTMLButtonElement;
       const btnVolver = document.getElementById('btn-volver') as HTMLButtonElement;
       
       let enViaje = false;
       let modoGalaxia = false;
       let velocidadGalaxia = 0.02; 
 
-      btnGalaxia.addEventListener('click', () => {
+      btnGalaxia2.addEventListener('click', () => {
           if(enViaje) return;
           enViaje = true;
           modoGalaxia = true;
           
           document.getElementById('zona-scroll')!.style.display = 'none';
           document.getElementById('ui-textos')!.style.opacity = '0';
-          btnGalaxia.style.opacity = '0';
-          btnGalaxia.style.pointerEvents = 'none';
+          btnGalaxia2.style.opacity = '0';
+          btnGalaxia2.style.pointerEvents = 'none';
           document.getElementById('lluvia-meteoritos')!.style.opacity = '0';
           document.getElementById('universo-fondo')!.style.opacity = '0';
           document.getElementById('nebulosa')!.style.opacity = '0'; 
@@ -384,7 +399,7 @@
       
       const foto = document.getElementById('foto-annarella') as HTMLImageElement;
       const textoCumple = document.getElementById('texto-cumple') as HTMLDivElement;
-      const btnGalaxia2 = document.getElementById('btn-galaxia') as HTMLButtonElement;
+      const btnGalaxiaScroll = document.getElementById('btn-galaxia') as HTMLButtonElement;
       const indicadorScroll = document.getElementById('indicador-scroll') as HTMLDivElement;
       
       let width: number, height: number;
@@ -428,13 +443,12 @@
            textoCumple.style.transform = `translate(-50%, 30px) scale(0.9)`;
         }
 
-        // REDUCIDO A 0.85 PARA GARANTIZAR QUE APAREZCA EN TODOS LOS TELÉFONOS
         if (progresoScroll > 0.85) {
-            btnGalaxia2.classList.remove('oculto');
-            btnGalaxia2.style.pointerEvents = 'auto';
+            btnGalaxiaScroll.classList.remove('oculto');
+            btnGalaxiaScroll.style.pointerEvents = 'auto';
         } else {
-            btnGalaxia2.classList.add('oculto');
-            btnGalaxia2.style.pointerEvents = 'none';
+            btnGalaxiaScroll.classList.add('oculto');
+            btnGalaxiaScroll.style.pointerEvents = 'none';
         }
       });
 
@@ -507,7 +521,7 @@
   .cumple { font-size: clamp(2.5rem, 10vw, 5rem); font-weight: 900; color: #fff; background: -webkit-linear-gradient(45deg, #ff69b4, #00f2fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .nombre { font-size: clamp(2rem, 8vw, 4rem); font-weight: 800; color: #fff; }
 
-  /* --- BOTÓN IR A GALAXIA (NIVEL 9999) --- */
+  /* --- BOTÓN IR A GALAXIA --- */
   #btn-galaxia {
     position: fixed; bottom: 10vh; left: 50%; transform: translateX(-50%);
     padding: 15px 40px; font-size: 1.2rem; font-weight: 800; font-family: 'Montserrat', sans-serif;
