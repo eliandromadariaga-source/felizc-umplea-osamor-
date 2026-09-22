@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Feliz Cumpleaños Annarella</title>
+    <title>Feliz Cumpleaños Princesa Apoteósica</title>
     
     <!-- FUENTES "CUCHI" Y ROMÁNTICAS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,13 +44,13 @@
       .btn-flotante.activo { background: rgba(255, 105, 180, 0.5); border-color: #ff69b4; box-shadow: 0 0 20px rgba(255, 105, 180, 0.8); }
 
       .ui-contenedor { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; transition: opacity 1s ease; }
-      #foto-annarella { position: absolute; top: 15vh; left: 50%; transform: translate(-50%, 50px); width: clamp(160px, 40vw, 300px); height: clamp(160px, 40vw, 300px); object-fit: cover; border-radius: 50%; box-shadow: 0 0 40px rgba(255, 105, 180, 0.6), 0 0 80px rgba(255, 182, 193, 0.4); border: 5px solid rgba(255, 240, 245, 0.9); opacity: 0; transition: transform 0.1s linear, opacity 0.1s linear; }
+      #foto-annarella { position: absolute; top: 12vh; left: 50%; transform: translate(-50%, 50px); width: clamp(150px, 35vw, 280px); height: clamp(150px, 35vw, 280px); object-fit: cover; border-radius: 50%; box-shadow: 0 0 40px rgba(255, 105, 180, 0.6), 0 0 80px rgba(255, 182, 193, 0.4); border: 5px solid rgba(255, 240, 245, 0.9); opacity: 0; transition: transform 0.1s linear, opacity 0.1s linear; }
 
-      .mensaje-elegante { position: absolute; top: calc(15vh + clamp(160px, 40vw, 300px) + 20px); left: 50%; transform: translate(-50%, 30px); text-align: center; display: flex; flex-direction: column; gap: 5px; opacity: 0; transition: transform 0.1s linear, opacity 0.1s linear; }
-      .mensaje-elegante span { line-height: 1; letter-spacing: 2px; text-shadow: 0 0 20px rgba(255, 105, 180, 0.8), 0 0 40px rgba(255, 182, 193, 0.6); }
-      .feliz { font-family: 'Quicksand', sans-serif; font-size: clamp(1.5rem, 6vw, 3rem); font-weight: 700; color: #fff; }
-      .cumple { font-family: 'Quicksand', sans-serif; font-size: clamp(2rem, 8vw, 4rem); font-weight: 900; color: #fff; background: -webkit-linear-gradient(45deg, #ff758c, #ff7eb3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-      .nombre { font-family: 'Dancing Script', cursive; font-size: clamp(3rem, 12vw, 6rem); text-transform: capitalize; color: #ffebf0; text-shadow: 0 0 30px rgba(255, 105, 180, 1); margin-top: -10px; }
+      .mensaje-elegante { position: absolute; top: calc(12vh + clamp(150px, 35vw, 280px) + 15px); left: 50%; transform: translate(-50%, 30px); text-align: center; display: flex; flex-direction: column; gap: 5px; opacity: 0; transition: transform 0.1s linear, opacity 0.1s linear; width: 90%; }
+      .mensaje-elegante span { line-height: 1.1; letter-spacing: 2px; text-shadow: 0 0 20px rgba(255, 105, 180, 0.8), 0 0 40px rgba(255, 182, 193, 0.6); }
+      .feliz { font-family: 'Quicksand', sans-serif; font-size: clamp(1.5rem, 5vw, 2.5rem); font-weight: 700; color: #fff; }
+      .cumple { font-family: 'Quicksand', sans-serif; font-size: clamp(1.8rem, 7vw, 3.5rem); font-weight: 900; color: #fff; background: -webkit-linear-gradient(45deg, #ff758c, #ff7eb3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      .nombre { font-family: 'Dancing Script', cursive; font-size: clamp(2.2rem, 9vw, 4.5rem); text-transform: capitalize; color: #ffebf0; text-shadow: 0 0 30px rgba(255, 105, 180, 1); margin-top: 5px; }
 
       #btn-galaxia, #btn-constelacion, #btn-volver { 
           font-family: 'Quicksand', sans-serif; font-weight: 800; font-size: 1.1rem; letter-spacing: 1px;
@@ -59,7 +59,7 @@
           box-shadow: 0 10px 20px rgba(255, 117, 140, 0.4), 0 0 30px rgba(255, 126, 179, 0.4);
           transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
       }
-      #btn-galaxia { position: fixed; bottom: 10vh; left: 50%; transform: translateX(-50%); padding: 15px 40px; z-index: 9999; animation: flotarBtn 3s infinite ease-in-out; }
+      #btn-galaxia { position: fixed; bottom: 8vh; left: 50%; transform: translateX(-50%); padding: 15px 40px; z-index: 9999; animation: flotarBtn 3s infinite ease-in-out; }
       #btn-constelacion, #btn-volver { padding: 15px 35px; margin-top: 20px; }
       
       #btn-galaxia:hover, #btn-constelacion:hover, #btn-volver:hover { transform: translateX(-50%) translateY(-5px); box-shadow: 0 15px 25px rgba(255, 117, 140, 0.6), 0 0 50px rgba(255, 126, 179, 0.6); background: linear-gradient(45deg, #ff7eb3 0%, #ff758c 100%); }
@@ -129,12 +129,12 @@
 
     <!-- Capa 4: Interfaz de Cumpleaños -->
     <div class="ui-contenedor" id="ui-textos">
-      <img src="foto-annarella.jpg" alt="Annarella" id="foto-annarella" />
+      <img src="foto-annarella.jpg" alt="Princesa Apoteósica" id="foto-annarella" />
       
       <div class="mensaje-elegante" id="texto-cumple">
         <span class="feliz">FELIZ</span>
         <span class="cumple">CUMPLEAÑOS</span>
-        <span class="nombre">Annarella</span>
+        <span class="nombre">Princesa Apoteósica</span>
       </div>
     </div>
 
@@ -392,27 +392,20 @@
       // Puntos astronómicos representativos de Virgo
       const p1 = new THREE.Vector3(-4.0, 3.5, 0);   // Zavijava
       const p2 = new THREE.Vector3(-2.0, 1.8, 0);   // Zaniah
-      const p3 = new THREE.Vector3(0.0, 0.5, 0);    // Porrima (Centro)
+      const p3 = new THREE.Vector3(0.0, 0.5, 0);    // Porrima
       const p4 = new THREE.Vector3(2.0, 1.2, 0);    // Auva
       const p5 = new THREE.Vector3(4.5, 2.5, 0);    // Vindemiatrix
       const p6 = new THREE.Vector3(-1.5, -1.8, 0);  // Heze
-      const p7 = new THREE.Vector3(2.0, -2.5, 0);   // Spica (Estrella principal)
+      const p7 = new THREE.Vector3(2.0, -2.5, 0);   // Spica
       const p8 = new THREE.Vector3(-3.0, -4.5, 0);  // Syrma
       const p9 = new THREE.Vector3(-4.0, -6.5, 0);  // Khambalia
       const p10 = new THREE.Vector3(3.5, -5.0, 0);  // Kang
 
       const virPuntos = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10];
       const virLineas = [
-          p1, p2,  // Zavijava a Zaniah
-          p2, p3,  // Zaniah a Porrima
-          p3, p4,  // Porrima a Auva
-          p4, p5,  // Auva a Vindemiatrix
-          p3, p6,  // Porrima a Heze
-          p4, p7,  // Auva a Spica
-          p6, p7,  // Heze a Spica
-          p6, p8,  // Heze a Syrma
-          p8, p9,  // Syrma a Khambalia
-          p7, p10  // Spica a Kang
+          p1, p2, p2, p3, p3, p4, p4, p5,
+          p3, p6, p4, p7, p6, p7, p6, p8,
+          p8, p9, p7, p10
       ];
 
       const particulasPorPunto = 25;
@@ -425,7 +418,6 @@
 
       let idx = 0;
       for(let i = 0; i < virPuntos.length; i++) {
-          // Estrella principal
           constPos[idx*3] = virPuntos[i].x; 
           constPos[idx*3+1] = virPuntos[i].y; 
           constPos[idx*3+2] = virPuntos[i].z;
@@ -434,12 +426,10 @@
           constCol[idx*3+1] = 0.9; 
           constCol[idx*3+2] = 1.0; 
 
-          // Hacer a Spica (índice 6) más radiante
           constSiz[idx] = (i === 6) ? 35.0 : 25.0; 
           constPha[idx] = Math.random() * Math.PI;
           idx++;
           
-          // Polvo de estrellas alrededor de cada punto
           for(let j = 0; j < particulasPorPunto; j++) {
               const r = Math.random() * 1.5; 
               const ang = Math.random() * Math.PI * 2;
