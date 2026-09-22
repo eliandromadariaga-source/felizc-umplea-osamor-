@@ -57,7 +57,7 @@
 
     <!-- Capa 6: Interfaz Constelación de Libra -->
     <div class="ui-constelacion oculto-total" id="ui-constelacion">
-      <h2 class="titulo-constelacion">Constelación de Libra</h2>
+      <h2 class="titulo-constelacion">Constelación de Libra ♎</h2>
       <p class="mensaje-regalo">
         Tu regalo físico está esperando por ti. 🎁<br><br>
         Como pensábamos que te ibas de viaje el martes, decidimos resguardarlo, pero será entregado en el momento exacto que tú lo solicites.<br><br>
@@ -112,7 +112,7 @@
       });
 
       // ==========================================
-      // MOTOR 3D: DISEÑO CUCHI, FLORES Y CORAZONES
+      // MOTOR 3D: CORAZONES, GALAXIA Y CONSTELACIÓN
       // ==========================================
       const THREE = window.THREE; 
       const contenedor3D = document.getElementById('contenedor-3d');
@@ -125,34 +125,75 @@
       contenedor3D.appendChild(renderer.domElement);
 
       const textureLoader = new THREE.TextureLoader();
-      const urlEarth = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg';
-      const urlMoon = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/moon_1024.jpg';
 
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); scene.add(ambientLight);
-      const sunLight = new THREE.DirectionalLight(0xffffff, 2.5); sunLight.position.set(-10, 5, 5); scene.add(sunLight);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); scene.add(ambientLight);
+      const sunLight = new THREE.DirectionalLight(0xffffff, 2.5); sunLight.position.set(-10, 10, 10); scene.add(sunLight);
+      const pinkLight = new THREE.PointLight(0xff1493, 2, 20); pinkLight.position.set(5, 0, 5); scene.add(pinkLight);
 
-      // --- SISTEMA PLANETARIO ---
-      const sistemaPlanetario = new THREE.Group();
-      scene.add(sistemaPlanetario);
-
-      const earth = new THREE.Mesh(new THREE.SphereGeometry(2.5, 64, 64), new THREE.MeshPhongMaterial({ map: textureLoader.load(urlEarth), shininess: 30 }));
-      sistemaPlanetario.add(earth);
-
-      const moonPivot = new THREE.Group();
-      sistemaPlanetario.add(moonPivot);
-      const moon = new THREE.Mesh(new THREE.SphereGeometry(0.6, 64, 64), new THREE.MeshStandardMaterial({ map: textureLoader.load(urlMoon), roughness: 0.9 }));
-      moon.position.set(4.8, 0, 0); 
-      moonPivot.add(moon);
-
-      const asteroidGeo = new THREE.DodecahedronGeometry(0.8, 3); 
-      const posiciones = asteroidGeo.attributes.position;
-      for(let i = 0; i < posiciones.count; i++) {
-          const def = 1 + (Math.random() * 0.4 - 0.2); 
-          posiciones.setXYZ(i, posiciones.getX(i)*def, posiciones.getY(i)*def, posiciones.getZ(i)*def);
+      // --- GENERADOR DE TEXTURAS (EMOJIS PARA PARTÍCULAS) ---
+      function crearTexturaEmoji(emoji) {
+          const canvas = document.createElement('canvas');
+          canvas.width = 128; canvas.height = 128;
+          const ctx = canvas.getContext('2d');
+          ctx.font = '80px sans-serif';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.shadowColor = 'rgba(255,255,255,0.8)'; ctx.shadowBlur = 15;
+          ctx.fillText(emoji, 64, 70);
+          return new THREE.CanvasTexture(canvas);
       }
-      asteroidGeo.computeVertexNormals(); 
-      const asteroid = new THREE.Mesh(asteroidGeo, new THREE.MeshStandardMaterial({ map: textureLoader.load(urlMoon), color: 0xdddddd }));
-      scene.add(asteroid); 
+      const texCorazon = crearTexturaEmoji('💖');
+      const texFlor = crearTexturaEmoji('🌸');
+      const texBrillo = crearTexturaEmoji('✨');
+
+      // --- 1. SISTEMA INICIAL: CORAZONES 3D FLOTANTES (REEMPLAZA A LA TIERRA) ---
+      const corazonesGroup = new THREE.Group();
+      scene.add(corazonesGroup);
+
+      // Creamos la forma matemática de un corazón 3D
+      const heartShape = new THREE.Shape();
+      heartShape.moveTo(0, 1.5);
+      heartShape.bezierCurveTo(2, 1.5, 2, -1, 0, -3);
+      heartShape.bezierCurveTo(-2, -1, -2, 1.5, 0, 1.5);
+      
+      const extrudeSettings = { depth: 0.5, bevelEnabled: true, bevelSegments: 4, steps: 2, bevelSize: 0.3, bevelThickness: 0.3 };
+      const heartGeo = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+      heartGeo.center(); // Centramos la geometría
+
+      // Material de cristal rosado brillante
+      const heartMat = new THREE.MeshPhysicalMaterial({ 
+          color: 0xff69b4, 
+          metalness: 0.2, 
+          roughness: 0.1, 
+          clearcoat: 1.0, 
+          clearcoatRoughness: 0.1,
+          emissive: 0x330011 
+      });
+      const miniHeartMat = new THREE.MeshPhysicalMaterial({ 
+          color: 0xffb6c1, metalness: 0.3, roughness: 0.2, clearcoat: 1.0 
+      });
+
+      // Corazón Central Grande
+      const corazonCentral = new THREE.Mesh(heartGeo, heartMat);
+      corazonCentral.scale.set(0.8, 0.8, 0.8);
+      corazonesGroup.add(corazonCentral);
+
+      // Mini corazones orbitando (Asteroides Cuchi)
+      const pequenosCorazones = [];
+      for(let i=0; i<8; i++) {
+          const miniC = new THREE.Mesh(heartGeo, miniHeartMat);
+          miniC.scale.set(0.15, 0.15, 0.15);
+          const angulo = (i / 8) * Math.PI * 2;
+          const distancia = 3.5 + Math.random() * 1.5;
+          miniC.position.set(Math.cos(angulo)*distancia, (Math.random()-0.5)*3, Math.sin(angulo)*distancia);
+          
+          corazonesGroup.add(miniC);
+          pequenosCorazones.push({
+              mesh: miniC,
+              angulo: angulo,
+              distancia: distancia,
+              velocidad: 0.01 + Math.random() * 0.02
+          });
+      }
 
       // --- SHADER ESTRELLAS ÉPICAS ---
       const starUniforms = { uTime: { value: 0 } };
@@ -177,7 +218,7 @@
           transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
       });
 
-      // --- LA GALAXIA (Tonos más pastel y románticos) ---
+      // --- 2. LA GALAXIA REDISEÑADA (MÁS HERMOSA Y ESPONJOSA) ---
       const galaxiaGroup = new THREE.Group();
       scene.add(galaxiaGroup);
       galaxiaGroup.visible = false; galaxiaGroup.position.z = -150; galaxiaGroup.rotation.x = 1.0; 
@@ -186,40 +227,61 @@
           const geo = new THREE.BufferGeometry();
           const pos = new Float32Array(cantidad * 3), col = new Float32Array(cantidad * 3), siz = new Float32Array(cantidad), pha = new Float32Array(cantidad);
           
-          const colorCentro = new THREE.Color(0xffffff); // Blanco
-          const colorRosa = new THREE.Color(0xff8da1);   // Rosa suave romántico
-          const colorVioleta = new THREE.Color(0xdda0dd); // Lila pastel
+          const colorCentro = new THREE.Color(0xffffff); // Blanco puro en el núcleo
+          const colorRosa = new THREE.Color(0xff69b4);   // Hot Pink
+          const colorLila = new THREE.Color(0xdda0dd);   // Lila hermoso
           
           for(let i = 0; i < cantidad; i++) {
-              const distribucion = Math.pow(Math.random(), 3); 
+              // Núcleo muy denso, brazos esponjosos
+              const distribucion = Math.pow(Math.random(), 3.5); 
               const radio = distribucion * radioGalaxia; 
               
-              const angulo = (i % 5) * ((Math.PI * 2) / 5);
-              const giro = radio * 0.5; 
-              const dispersionRadio = 3.5;
-              const dispersion = (Math.random() - 0.5) * (radio / radioGalaxia) * dispersionRadio;
-              const alturaBulge = (Math.random() - 0.5) * 6.0 * Math.exp(-radio/2);
+              const angulo = (i % 6) * ((Math.PI * 2) / 6); // 6 brazos suaves
+              const giro = radio * 0.4; 
+              
+              // Dispersión mayor para efecto "nube" y no línea
+              const dispersionRadio = 5.0; 
+              const dispersionX = (Math.random() - 0.5) * (radio / radioGalaxia) * dispersionRadio * 2;
+              const dispersionZ = (Math.random() - 0.5) * (radio / radioGalaxia) * dispersionRadio * 2;
+              const alturaBulge = (Math.random() - 0.5) * 8.0 * Math.exp(-radio/1.5);
 
-              pos[i*3] = Math.cos(angulo + giro) * radio + (Math.random()-0.5)*dispersion;
+              pos[i*3] = Math.cos(angulo + giro) * radio + dispersionX;
               pos[i*3+1] = alturaBulge;
-              pos[i*3+2] = Math.sin(angulo + giro) * radio + (Math.random()-0.5)*dispersion;
+              pos[i*3+2] = Math.sin(angulo + giro) * radio + dispersionZ;
               
               let mixedColor = colorCentro.clone();
-              if(radio > 1.5) mixedColor.lerp(i%2==0 ? colorRosa : colorVioleta, radio / (radioGalaxia * 0.5));
-              let intensidad = Math.max(0.2, 1.5 - (radio / radioGalaxia));
+              if(radio > 1.5) mixedColor.lerp(i%2==0 ? colorRosa : colorLila, radio / (radioGalaxia * 0.6));
+              let intensidad = Math.max(0.3, 1.5 - (radio / radioGalaxia));
               mixedColor.multiplyScalar(intensidad);
 
               col[i*3] = mixedColor.r; col[i*3+1] = mixedColor.g; col[i*3+2] = mixedColor.b;
-              siz[i] = Math.random() * 3.5 + 1.0; 
+              siz[i] = Math.random() * 3.5 + 1.5; 
               pha[i] = Math.random() * Math.PI * 2;
           }
           geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
           geo.setAttribute('size', new THREE.BufferAttribute(siz, 1)); geo.setAttribute('phase', new THREE.BufferAttribute(pha, 1));
           return geo;
       }
-      galaxiaGroup.add(new THREE.Points(crearGalaxia(20000, 30), materialEstrellas));
+      galaxiaGroup.add(new THREE.Points(crearGalaxia(22000, 32), materialEstrellas));
 
-      // --- CONSTELACIÓN DE LIBRA ESTÁTICA Y ROMÁNTICA ---
+      // Agregar corazones flotantes DE LA GALAXIA (Material independiente)
+      function crearCorazonesGalaxia(cantidad, radioGalaxia) {
+          const geo = new THREE.BufferGeometry();
+          const pos = new Float32Array(cantidad * 3);
+          for(let i = 0; i < cantidad; i++) {
+              const radio = Math.random() * radioGalaxia;
+              const angulo = Math.random() * Math.PI * 2;
+              pos[i*3] = Math.cos(angulo) * radio;
+              pos[i*3+1] = (Math.random() - 0.5) * 4.0;
+              pos[i*3+2] = Math.sin(angulo) * radio;
+          }
+          geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+          const mat = new THREE.PointsMaterial({ size: 4.0, map: texCorazon, transparent: true, depthWrite: false });
+          return new THREE.Points(geo, mat);
+      }
+      galaxiaGroup.add(crearCorazonesGalaxia(300, 30));
+
+      // --- 3. CONSTELACIÓN DE LIBRA ESTÁTICA Y ROMÁNTICA ---
       const constelacionGroup = new THREE.Group();
       scene.add(constelacionGroup);
       constelacionGroup.position.z = -150; 
@@ -252,14 +314,10 @@
           for(let j=0; j<particulasPorPunto; j++) {
               const r = Math.random() * 1.5; 
               const ang = Math.random() * Math.PI * 2;
-              const xOff = Math.cos(ang) * r;
-              const yOff = Math.sin(ang) * r;
-              
-              constPos[idx*3] = libPuntos[i].x + xOff; 
-              constPos[idx*3+1] = libPuntos[i].y + yOff; 
+              constPos[idx*3] = libPuntos[i].x + Math.cos(ang) * r; 
+              constPos[idx*3+1] = libPuntos[i].y + Math.sin(ang) * r; 
               constPos[idx*3+2] = libPuntos[i].z + (Math.random()-0.5);
               
-              // Colores "cuchi": Rosa pastel y Dorado brillante
               const isPink = Math.random() > 0.5;
               constCol[idx*3] = isPink ? 1.0 : 1.0; 
               constCol[idx*3+1] = isPink ? 0.6 : 0.9; 
@@ -278,39 +336,22 @@
       constGeo.setAttribute('phase', new THREE.BufferAttribute(constPha, 1));
       constelacionGroup.add(new THREE.Points(constGeo, materialEstrellas)); 
 
-      // Líneas rosadas románticas
       const lineGeo = new THREE.BufferGeometry().setFromPoints(libLineas);
       const lineMat = new THREE.LineBasicMaterial({ color: 0xff99cc, transparent: true, opacity: 0.8, linewidth: 3 });
       constelacionGroup.add(new THREE.LineSegments(lineGeo, lineMat));
 
       // --- LLUVIA DE FLORES Y CORAZONES 3D ---
-      function crearTexturaEmoji(emoji) {
-          const canvas = document.createElement('canvas');
-          canvas.width = 128; canvas.height = 128;
-          const ctx = canvas.getContext('2d');
-          ctx.font = '80px sans-serif';
-          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-          ctx.shadowColor = 'rgba(255,255,255,0.8)'; ctx.shadowBlur = 15;
-          ctx.fillText(emoji, 64, 70);
-          return new THREE.CanvasTexture(canvas);
-      }
-      
-      const texCorazon = crearTexturaEmoji('💖');
-      const texFlor = crearTexturaEmoji('🌸');
-      const texBrillo = crearTexturaEmoji('✨');
-
       function crearParticulasCayendo(textura, count, size) {
           const geo = new THREE.BufferGeometry();
           const pos = new Float32Array(count * 3);
           const vel = new Float32Array(count * 3);
           for(let i=0; i<count; i++) {
-              pos[i*3] = (Math.random() - 0.5) * 80; // X ancho
-              pos[i*3+1] = (Math.random() - 0.5) * 80 + 40; // Y alto (empiezan arriba)
-              pos[i*3+2] = (Math.random() - 0.5) * 40 - 10; // Z profundidad
-              
-              vel[i*3] = (Math.random() - 0.5) * 0.02; // Viento suave X
-              vel[i*3+1] = - (Math.random() * 0.04 + 0.02); // Gravedad Y
-              vel[i*3+2] = (Math.random() - 0.5) * 0.02; // Viento suave Z
+              pos[i*3] = (Math.random() - 0.5) * 80; 
+              pos[i*3+1] = (Math.random() - 0.5) * 80 + 40; 
+              pos[i*3+2] = (Math.random() - 0.5) * 40 - 10; 
+              vel[i*3] = (Math.random() - 0.5) * 0.02; 
+              vel[i*3+1] = - (Math.random() * 0.04 + 0.02); 
+              vel[i*3+2] = (Math.random() - 0.5) * 0.02; 
           }
           geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
           geo.setAttribute('velocity', new THREE.BufferAttribute(vel, 3));
@@ -341,10 +382,10 @@
       function actualizarLayout3D() {
           camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
           if (window.innerWidth < 768) { 
-              basePlanetY = 4.5; sistemaPlanetario.position.set(1.2, basePlanetY, -4); sistemaPlanetario.scale.set(0.5, 0.5, 0.5); 
+              basePlanetY = 4.5; corazonesGroup.position.set(1.2, basePlanetY, -4); corazonesGroup.scale.set(0.5, 0.5, 0.5); 
               galaxiaGroup.scale.set(0.6, 0.6, 0.6); constelacionGroup.scale.set(0.7, 0.7, 0.7); 
           } else { 
-              basePlanetY = 3; sistemaPlanetario.position.set(4, basePlanetY, -2); sistemaPlanetario.scale.set(1, 1, 1); 
+              basePlanetY = 3; corazonesGroup.position.set(4, basePlanetY, -2); corazonesGroup.scale.set(1, 1, 1); 
               galaxiaGroup.scale.set(1, 1, 1); constelacionGroup.scale.set(1, 1, 1); 
           }
           if(estado === 0) targetPlanetY = basePlanetY;
@@ -366,7 +407,7 @@
           document.getElementById('universo-fondo').style.opacity = '0';
           document.getElementById('nebulosa').style.opacity = '0'; 
           
-          targetPlanetY = -40; 
+          targetPlanetY = -40; // Los corazones bajan y se ocultan
           galaxiaGroup.visible = true; galaxiaGroup.position.z = -100; 
           targetGalaxiaZ = -3; targetCameraZ = 6; 
           
@@ -407,17 +448,15 @@
           }, 2500);
       });
 
-      let tiempoAsteroide = 0; let tiempoShader = 0;
+      let tiempoShader = 0;
       
-      // Función para animar la caída de emojis
       function animarLluvia(puntos) {
           const posiciones = puntos.geometry.attributes.position.array;
           const velocidades = puntos.geometry.attributes.velocity.array;
           for(let i=0; i<posiciones.length/3; i++) {
               posiciones[i*3] += velocidades[i*3];
-              posiciones[i*3+1] += velocidades[i*3+1]; // Cae en Y
+              posiciones[i*3+1] += velocidades[i*3+1]; 
               posiciones[i*3+2] += velocidades[i*3+2];
-              // Si cae muy abajo, vuelve arriba
               if(posiciones[i*3+1] < -30) {
                   posiciones[i*3+1] = 40;
                   posiciones[i*3] = (Math.random() - 0.5) * 80;
@@ -431,21 +470,28 @@
         camera.position.x += (mouseX*2 - camera.position.x) * 0.05; camera.position.y += (-mouseY*2 - camera.position.y) * 0.05; camera.lookAt(scene.position);
 
         camera.position.z += (targetCameraZ - camera.position.z) * 0.04;
-        sistemaPlanetario.position.y += (targetPlanetY - sistemaPlanetario.position.y) * 0.03;
-        asteroid.position.y = sistemaPlanetario.position.y + Math.sin(tiempoAsteroide * 1.5) * 6; 
+        corazonesGroup.position.y += (targetPlanetY - corazonesGroup.position.y) * 0.03;
         
         galaxiaGroup.position.z += (targetGalaxiaZ - galaxiaGroup.position.z) * 0.03;
         constelacionGroup.position.z += (targetConstelacionZ - constelacionGroup.position.z) * 0.04;
 
-        earth.rotation.y += 0.001; moonPivot.rotation.y += 0.003; moon.rotation.y += 0.002;        
-        tiempoAsteroide += 0.005; asteroid.position.x = Math.cos(tiempoAsteroide*0.8)*8; asteroid.position.z = Math.sin(tiempoAsteroide*1.2)*5; asteroid.rotation.x += 0.02; asteroid.rotation.y += 0.01;
+        // Animación suave de los corazones iniciales
+        corazonCentral.rotation.y += 0.01;
+        corazonCentral.position.y = Math.sin(Date.now() * 0.002) * 0.2; // Flote suave
+        
+        pequenosCorazones.forEach(pc => {
+            pc.angulo += pc.velocidad;
+            pc.mesh.position.x = Math.cos(pc.angulo) * pc.distancia;
+            pc.mesh.position.z = Math.sin(pc.angulo) * pc.distancia;
+            pc.mesh.rotation.x += 0.02;
+            pc.mesh.rotation.y += 0.03;
+        });
         
         tiempoShader += 0.01; starUniforms.uTime.value = tiempoShader;
 
         if(galaxiaGroup.visible) { galaxiaGroup.rotation.y += 0.0015; galaxiaGroup.rotation.z += 0.0005; }
         
         if(constelacionGroup.visible) { 
-            // CONSTELACIÓN TOTALMENTE ESTÁTICA, solo animamos la lluvia de flores
             animarLluvia(lluviaCorazones);
             animarLluvia(lluviaFlores);
             animarLluvia(lluviaBrillos);
@@ -491,7 +537,7 @@
       function animarFondo() {
         ctxFondo.clearRect(0, 0, width, height); const t = Date.now() * 0.001; 
         estrellasFondo.forEach(e => {
-          ctxFondo.fillStyle = `rgba(255, 182, 193, ${0.3 + (Math.sin(t * e.velocidadBrillo + e.faseBrillo) * 0.4)})`; // Estrellas rosadas
+          ctxFondo.fillStyle = `rgba(255, 182, 193, ${0.3 + (Math.sin(t * e.velocidadBrillo + e.faseBrillo) * 0.4)})`; 
           ctxFondo.beginPath(); ctxFondo.arc(e.x, e.y, e.tamano, 0, Math.PI * 2); ctxFondo.fill();
         }); requestAnimationFrame(animarFondo);
       }
@@ -501,7 +547,7 @@
 </html>
 
 <style is:global>
-  body, html { margin: 0; padding: 0; background-color: #0b0212; /* Morado espacial muy oscuro */ color: white; font-family: 'Quicksand', sans-serif; overflow-x: hidden; }
+  body, html { margin: 0; padding: 0; background-color: #0b0212; color: white; font-family: 'Quicksand', sans-serif; overflow-x: hidden; }
   .nebulosa { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 20% 30%, rgba(90, 20, 80, 0.4) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(40, 20, 100, 0.3) 0%, transparent 50%), radial-gradient(circle at 50% 100%, rgba(120, 20, 60, 0.25) 0%, transparent 60%); z-index: 0; transition: opacity 1.5s ease; }
   #universo-fondo { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; transition: opacity 1.5s ease; }
   #contenedor-3d { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2; pointer-events: none; }
@@ -520,7 +566,6 @@
   .cumple { font-family: 'Quicksand', sans-serif; font-size: clamp(2rem, 8vw, 4rem); font-weight: 900; color: #fff; background: -webkit-linear-gradient(45deg, #ff758c, #ff7eb3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .nombre { font-family: 'Dancing Script', cursive; font-size: clamp(3rem, 12vw, 6rem); text-transform: capitalize; color: #ffebf0; text-shadow: 0 0 30px rgba(255, 105, 180, 1); margin-top: -10px; }
 
-  /* BOTONES ROMÁNTICOS */
   #btn-galaxia, #btn-constelacion, #btn-volver { 
       font-family: 'Quicksand', sans-serif; font-weight: 800; font-size: 1.1rem; letter-spacing: 1px;
       color: white; background: linear-gradient(45deg, #ff758c 0%, #ff7eb3 100%);
@@ -536,7 +581,6 @@
 
   @keyframes flotarBtn { 0% { transform: translateX(-50%) translateY(0px); } 50% { transform: translateX(-50%) translateY(-8px); box-shadow: 0 15px 25px rgba(255, 117, 140, 0.5), 0 0 40px rgba(255, 126, 179, 0.6); } 100% { transform: translateX(-50%) translateY(0px); } }
 
-  /* UI GALAXIA Y CONSTELACIÓN */
   .ui-galaxia, .ui-constelacion { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 60; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle, rgba(20,5,30,0.6) 0%, transparent 90%); transition: opacity 1.5s ease, transform 1.5s ease; }
   .oculto-total { opacity: 0; transform: scale(1.05); pointer-events: none; }
   
@@ -552,7 +596,6 @@
   .contenedor-scroll { position: relative; height: 350vh; z-index: 20; }
   .indicador { position: fixed; top: 5%; width: 100%; text-align: center; pointer-events: none; transition: opacity 0.5s; text-shadow: 0px 0px 10px rgba(255,255,255,0.5); }
 
-  /* Meteoritos rosados/mágicos */
   .estrella-fugaz, .meteorito { position: fixed; border-radius: 50%; opacity: 0; }
   .estrella-fugaz { width: 3px; height: 3px; background: #fff0f5; box-shadow: 0 0 10px #fff0f5; }
   .estrella-fugaz::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); width: 150px; height: 1px; background: linear-gradient(90deg, rgba(255,182,193,0.8), transparent); }
