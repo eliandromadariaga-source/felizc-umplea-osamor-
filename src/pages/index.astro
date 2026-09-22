@@ -15,7 +15,7 @@
     <!-- Capa 1: Estrellas de fondo 2D -->
     <canvas id="universo-fondo"></canvas>
 
-    <!-- Capa 2: Motor 3D (Planetas y Galaxia) -->
+    <!-- Capa 2: Motor 3D (Planetas, Galaxia y Constelación) -->
     <div id="contenedor-3d"></div>
     
     <!-- Capa 3: Lluvia de Meteoritos -->
@@ -30,7 +30,7 @@
     <div id="yt-player" style="position: absolute; top: -9999px; left: -9999px;"></div>
     <button id="btn-musica" class="btn-flotante">🎵 Activar Música</button>
 
-    <!-- Capa 4: Interfaz de Cumpleaños -->
+    <!-- Capa 4: Interfaz de Cumpleaños (Tierra) -->
     <div class="ui-contenedor" id="ui-textos">
       <img src="foto-annarella.jpg" alt="Annarella" id="foto-annarella" />
       
@@ -46,9 +46,24 @@
     <!-- Capa 5: Interfaz de la Galaxia -->
     <div class="ui-galaxia oculto-total" id="ui-galaxia">
       <p class="mensaje-romantico">
-        "El amor que siento por ti, no cabe ni en toda una galaxia, esta galaxia te la hago para expresar un pequeño porcentaje de mi amor por ti."
+        "El amor que siento por ti no cabe ni en toda una galaxia... esta creación es solo para expresar un pequeño porcentaje de mi amor por ti."
       </p>
-      <button id="btn-volver">VOLVER AL PLANETA</button>
+      <!-- Botón para viajar a la constelación -->
+      <button id="btn-constelacion">DESCUBRE TU REGALO ✨</button>
+    </div>
+
+    <!-- Capa 6: Interfaz de la Constelación (Libra) -->
+    <div class="ui-constelacion oculto-total" id="ui-constelacion">
+      <h2 class="titulo-constelacion">Constelación de Libra ♎</h2>
+      <p class="mensaje-regalo">
+        Tu regalo físico está esperando por ti. 🎁<br><br>
+        Como pensábamos que te ibas de viaje el martes, decidimos resguardarlo, pero será entregado en el momento exacto que tú lo solicites.<br><br>
+        Si deseas que te lo entreguemos personalmente, por favor escribe a este número:
+      </p>
+      <!-- PON TU NÚMERO DE TELÉFONO AQUÍ ABAJO -->
+      <a href="https://wa.me/580000000000" target="_blank" class="numero-whatsapp">📱 [PON TU NÚMERO AQUÍ]</a>
+      
+      <button id="btn-volver">VOLVER A CASA</button>
     </div>
 
     <main class="contenedor-scroll" id="zona-scroll">
@@ -57,37 +72,28 @@
       </div>
     </main>
 
-    <!-- CARGA DEL MOTOR 3D Y LA API DE YOUTUBE -->
+    <!-- CARGA DE SCRIPTS -->
     <script is:inline src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
     <script is:inline src="https://www.youtube.com/iframe_api"></script>
 
     <script>
       // ==========================================
-      // CONTROL DE MÚSICA (VÍA YOUTUBE INVISIBLE)
+      // CONTROL DE MÚSICA
       // ==========================================
       const btnMusica = document.getElementById('btn-musica') as HTMLButtonElement;
       let musicaActiva = false;
       let ytPlayer: any = null;
 
-      // YouTube exige que esta función sea global
       (window as any).onYouTubeIframeAPIReady = function() {
         ytPlayer = new (window as any).YT.Player('yt-player', {
-          height: '0',
-          width: '0',
-          videoId: 'FMzsC-2aVtU', // ID del track espacial relajante
-          playerVars: {
-            'autoplay': 0,
-            'controls': 0,
-            'loop': 1,
-            'playlist': 'FMzsC-2aVtU' // Necesario para hacer loop infinito
-          }
+          height: '0', width: '0',
+          videoId: 'FMzsC-2aVtU', 
+          playerVars: { 'autoplay': 0, 'controls': 0, 'loop': 1, 'playlist': 'FMzsC-2aVtU' }
         });
       };
 
       btnMusica.addEventListener('click', () => {
-        // Si el video de YouTube aún no ha cargado, ignorar el clic
         if (!ytPlayer || typeof ytPlayer.playVideo !== 'function') return;
-
         if (musicaActiva) {
           ytPlayer.pauseVideo();
           btnMusica.innerHTML = '🎵 Activar Música';
@@ -105,7 +111,6 @@
       // MOTOR 3D Y SHADERS
       // ==========================================
       const THREE = (window as any).THREE; 
-      
       const contenedor3D = document.getElementById('contenedor-3d') as HTMLDivElement;
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -113,40 +118,25 @@
       const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight); 
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
-      renderer.domElement.style.width = '100%';
-      renderer.domElement.style.height = '100%';
       contenedor3D.appendChild(renderer.domElement);
 
       const textureLoader = new THREE.TextureLoader();
       const urlEarth = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_atmos_2048.jpg';
-      const urlSpecular = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_specular_2048.jpg';
-      const urlClouds = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/earth_clouds_1024.png';
       const urlMoon = 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/moon_1024.jpg';
 
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); 
-      scene.add(ambientLight);
-      const sunLight = new THREE.DirectionalLight(0xffffff, 2.5); 
-      sunLight.position.set(-10, 5, 5); 
-      scene.add(sunLight);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); scene.add(ambientLight);
+      const sunLight = new THREE.DirectionalLight(0xffffff, 2.5); sunLight.position.set(-10, 5, 5); scene.add(sunLight);
 
+      // --- 1. SISTEMA PLANETARIO ---
       const sistemaPlanetario = new THREE.Group();
       scene.add(sistemaPlanetario);
 
-      const earthGeo = new THREE.SphereGeometry(2.5, 64, 64); 
-      const earthMat = new THREE.MeshPhongMaterial({ map: textureLoader.load(urlEarth), specularMap: textureLoader.load(urlSpecular), specular: new THREE.Color('grey'), shininess: 30 });
-      const earth = new THREE.Mesh(earthGeo, earthMat);
+      const earth = new THREE.Mesh(new THREE.SphereGeometry(2.5, 64, 64), new THREE.MeshPhongMaterial({ map: textureLoader.load(urlEarth), shininess: 30 }));
       sistemaPlanetario.add(earth);
-
-      const cloudGeo = new THREE.SphereGeometry(2.55, 64, 64);
-      const cloudMat = new THREE.MeshLambertMaterial({ map: textureLoader.load(urlClouds), transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending });
-      const clouds = new THREE.Mesh(cloudGeo, cloudMat);
-      sistemaPlanetario.add(clouds);
 
       const moonPivot = new THREE.Group();
       sistemaPlanetario.add(moonPivot);
-      const moonGeo = new THREE.SphereGeometry(0.6, 64, 64);
-      const moonMat = new THREE.MeshStandardMaterial({ map: textureLoader.load(urlMoon), roughness: 0.9 });
-      const moon = new THREE.Mesh(moonGeo, moonMat);
+      const moon = new THREE.Mesh(new THREE.SphereGeometry(0.6, 64, 64), new THREE.MeshStandardMaterial({ map: textureLoader.load(urlMoon), roughness: 0.9 }));
       moon.position.set(4.8, 0, 0); 
       moonPivot.add(moon);
 
@@ -157,190 +147,166 @@
           posiciones.setXYZ(i, posiciones.getX(i)*def, posiciones.getY(i)*def, posiciones.getZ(i)*def);
       }
       asteroidGeo.computeVertexNormals(); 
-      const asteroidMat = new THREE.MeshStandardMaterial({ map: textureLoader.load(urlMoon), roughness: 0.8, color: 0xaaaaaa });
-      const asteroid = new THREE.Mesh(asteroidGeo, asteroidMat);
+      const asteroid = new THREE.Mesh(asteroidGeo, new THREE.MeshStandardMaterial({ map: textureLoader.load(urlMoon), color: 0xaaaaaa }));
       scene.add(asteroid); 
 
-      const galaxiaGroup = new THREE.Group();
-      scene.add(galaxiaGroup);
-      galaxiaGroup.visible = false; 
-      galaxiaGroup.position.z = -25; 
-      galaxiaGroup.rotation.x = 0.8; 
-      
+      // --- SHADER ESTRELLAS (Usado por Galaxia y Constelación) ---
       const starUniforms = { uTime: { value: 0 } };
       const materialEstrellas = new THREE.ShaderMaterial({
           uniforms: starUniforms,
           vertexShader: `
-              attribute float size;
-              attribute float phase;
-              varying vec3 vColor;
-              varying float vAlpha;
-              uniform float uTime;
+              attribute float size; attribute float phase; varying vec3 vColor; varying float vAlpha; uniform float uTime;
               void main() {
-                  vColor = color;
-                  float twinkle = (sin(uTime * 2.0 + phase) + 1.0) * 0.5;
-                  vAlpha = 0.4 + (twinkle * 0.6); 
+                  vColor = color; float twinkle = (sin(uTime * 2.0 + phase) + 1.0) * 0.5; vAlpha = 0.4 + (twinkle * 0.6); 
                   vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                  gl_PointSize = size * (40.0 / -mvPosition.z);
-                  gl_Position = projectionMatrix * mvPosition;
+                  gl_PointSize = size * (40.0 / -mvPosition.z); gl_Position = projectionMatrix * mvPosition;
               }
           `,
           fragmentShader: `
-              varying vec3 vColor;
-              varying float vAlpha;
+              varying vec3 vColor; varying float vAlpha;
               void main() {
-                  float dist = length(gl_PointCoord - vec2(0.5));
-                  if (dist > 0.5) discard;
-                  float glow = exp(-dist * dist * 15.0); 
-                  float finalAlpha = max(glow, 0.2) * vAlpha;
+                  float dist = length(gl_PointCoord - vec2(0.5)); if (dist > 0.5) discard;
+                  float glow = exp(-dist * dist * 15.0); float finalAlpha = max(glow, 0.2) * vAlpha;
                   gl_FragColor = vec4(vColor, finalAlpha);
               }
           `,
           transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
       });
 
-      const countEstrellas = 25000;
-      const countPolvo = 8000;
-      const radioGalaxia = 25;
-      const brazos = 4;
+      // --- 2. LA GALAXIA ---
+      const galaxiaGroup = new THREE.Group();
+      scene.add(galaxiaGroup);
+      galaxiaGroup.visible = false; galaxiaGroup.position.z = -35; galaxiaGroup.rotation.x = 0.8; 
 
-      function crearGeometriaGalaxia(cantidad: number, isDust: boolean) {
+      function crearGalaxia(cantidad: number, radioGalaxia: number) {
           const geo = new THREE.BufferGeometry();
-          const positions = new Float32Array(cantidad * 3);
-          const colors = new Float32Array(cantidad * 3);
-          const sizes = new Float32Array(cantidad);
-          const phases = new Float32Array(cantidad);
-
-          const colorNucleo = new THREE.Color(0xfff5e6); 
-          const colorRosa = new THREE.Color(0xff1493);
-          const colorAzul = new THREE.Color(0x00f2fe);
-          const colorBorde = new THREE.Color(0x001133); 
-
+          const pos = new Float32Array(cantidad * 3), col = new Float32Array(cantidad * 3), siz = new Float32Array(cantidad), pha = new Float32Array(cantidad);
           for(let i = 0; i < cantidad; i++) {
-              const distribucion = Math.pow(Math.random(), 4); 
-              const radio = distribucion * radioGalaxia; 
-              const angulo = (i % brazos) * ((Math.PI * 2) / brazos);
+              const radio = Math.pow(Math.random(), 4) * radioGalaxia; 
+              const angulo = (i % 4) * ((Math.PI * 2) / 4);
               const giro = radio * 0.4; 
-              const dispersionRadio = isDust ? 6.0 : 1.5;
-              const dispersion = (Math.random() - 0.5) * (radio / radioGalaxia) * dispersionRadio;
-              const alturaMax = isDust ? 6.0 : 3.0;
-              const alturaBulge = (Math.random() - 0.5) * alturaMax * Math.exp(-radio/3);
-
-              positions[i*3] = Math.cos(angulo + giro) * radio + (Math.random()-0.5)*dispersion;
-              positions[i*3+1] = alturaBulge;
-              positions[i*3+2] = Math.sin(angulo + giro) * radio + (Math.random()-0.5)*dispersion;
-
-              let mixedColor = colorNucleo.clone();
-              if(radio > 1) mixedColor.lerp(i%2==0 ? colorRosa : colorAzul, radio / (radioGalaxia * 0.4));
-              if(radio > radioGalaxia * 0.6) mixedColor.lerp(colorBorde, (radio - radioGalaxia*0.6) / (radioGalaxia*0.4));
-
-              let intensidad = Math.max(0.1, 1.2 - (radio / radioGalaxia));
-              mixedColor.multiplyScalar(intensidad);
-
-              colors[i*3] = mixedColor.r;
-              colors[i*3+1] = mixedColor.g;
-              colors[i*3+2] = mixedColor.b;
-
-              sizes[i] = isDust ? (Math.random() * 8 + 4) : (Math.random() * 2 + 0.5);
-              phases[i] = Math.random() * Math.PI * 2;
+              const disp = (Math.random() - 0.5) * (radio / radioGalaxia) * 2;
+              pos[i*3] = Math.cos(angulo + giro) * radio + (Math.random()-0.5)*disp;
+              pos[i*3+1] = (Math.random() - 0.5) * 3.0 * Math.exp(-radio/3);
+              pos[i*3+2] = Math.sin(angulo + giro) * radio + (Math.random()-0.5)*disp;
+              
+              const color = new THREE.Color(i%2==0 ? 0xff1493 : 0x00f2fe);
+              col[i*3] = color.r; col[i*3+1] = color.g; col[i*3+2] = color.b;
+              siz[i] = Math.random() * 2 + 0.5; pha[i] = Math.random() * Math.PI * 2;
           }
-          geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-          geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-          geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-          geo.setAttribute('phase', new THREE.BufferAttribute(phases, 1));
+          geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+          geo.setAttribute('size', new THREE.BufferAttribute(siz, 1)); geo.setAttribute('phase', new THREE.BufferAttribute(pha, 1));
           return geo;
       }
+      galaxiaGroup.add(new THREE.Points(crearGalaxia(20000, 25), materialEstrellas));
 
-      const estrellas = new THREE.Points(crearGeometriaGalaxia(countEstrellas, false), materialEstrellas);
-      const polvo = new THREE.Points(crearGeometriaGalaxia(countPolvo, true), materialEstrellas); 
-      galaxiaGroup.add(estrellas);
-      galaxiaGroup.add(polvo);
+      // --- 3. CONSTELACIÓN DE LIBRA ---
+      const constelacionGroup = new THREE.Group();
+      scene.add(constelacionGroup);
+      constelacionGroup.visible = false;
+      constelacionGroup.position.z = -35; 
 
+      // Puntos de Libra (Forma de balanza)
+      const p1 = new THREE.Vector3(-4, -2, 0); // Zubenelgenubi
+      const p2 = new THREE.Vector3(0, 3, 0);   // Zubeneschamali
+      const p3 = new THREE.Vector3(4, -2, 0);  // Brachium
+      const p4 = new THREE.Vector3(6, 1, 0);   // Upsilon
+      const p5 = new THREE.Vector3(-6, 1, 0);  // Simetría extra
+      
+      const libPuntos = [p1, p2, p3, p4, p5];
+      const libLineas = [p5, p1, p1, p2, p2, p3, p3, p4, p1, p3]; // Conexiones
+
+      // Estrellas de la constelación
+      const constGeo = new THREE.BufferGeometry().setFromPoints(libPuntos);
+      const constCol = new Float32Array(5 * 3); const constSiz = new Float32Array(5); const constPha = new Float32Array(5);
+      for(let i=0; i<5; i++) {
+          constCol[i*3] = 1; constCol[i*3+1] = 1; constCol[i*3+2] = 1; // Estrellas Blancas/Celestes
+          constSiz[i] = 8.0; // MUY grandes
+          constPha[i] = Math.random() * Math.PI;
+      }
+      constGeo.setAttribute('color', new THREE.BufferAttribute(constCol, 3));
+      constGeo.setAttribute('size', new THREE.BufferAttribute(constSiz, 1));
+      constGeo.setAttribute('phase', new THREE.BufferAttribute(constPha, 1));
+      
+      const estrellasLibra = new THREE.Points(constGeo, materialEstrellas);
+      constelacionGroup.add(estrellasLibra);
+
+      // Líneas de la constelación
+      const lineGeo = new THREE.BufferGeometry().setFromPoints(libLineas);
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x00f2fe, transparent: true, opacity: 0.6 });
+      const lineasLibra = new THREE.LineSegments(lineGeo, lineMat);
+      constelacionGroup.add(lineasLibra);
+
+      // --- ESTADOS Y TRANSICIONES ---
+      let estado = 0; // 0: Tierra, 1: Galaxia, 2: Constelacion
       let targetCameraZ = 12;
       let basePlanetY = 3;
       let targetPlanetY = basePlanetY;
-      let targetGalaxiaZ = -25; 
+      let targetGalaxiaZ = -35; 
+      let targetConstelacionZ = -35;
       
-      let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
-
-      document.addEventListener('mousemove', (event) => {
-          mouseX = (event.clientX - window.innerWidth / 2) * 0.002;
-          mouseY = (event.clientY - window.innerHeight / 2) * 0.002;
-      });
-      document.addEventListener('touchmove', (event) => {
-          if (event.touches.length > 0) {
-              mouseX = (event.touches[0].clientX - window.innerWidth / 2) * 0.002;
-              mouseY = (event.touches[0].clientY - window.innerHeight / 2) * 0.002;
-          }
-      });
+      let mouseX = 0, mouseY = 0;
+      document.addEventListener('mousemove', (e) => { mouseX = (e.clientX - window.innerWidth/2)*0.002; mouseY = (e.clientY - window.innerHeight/2)*0.002; });
 
       function actualizarLayout3D() {
-          camera.aspect = window.innerWidth / window.innerHeight;
-          camera.updateProjectionMatrix();
-          renderer.setSize(window.innerWidth, window.innerHeight);
-          
-          if (window.innerWidth < 768) {
-              basePlanetY = 4.5;
-              sistemaPlanetario.position.x = 1.2;
-              sistemaPlanetario.position.z = -4;
-              sistemaPlanetario.scale.set(0.5, 0.5, 0.5);
-          } else {
-              basePlanetY = 3;
-              sistemaPlanetario.position.x = 4;
-              sistemaPlanetario.position.z = -2;
-              sistemaPlanetario.scale.set(1, 1, 1);
-          }
-          if(!modoGalaxia) targetPlanetY = basePlanetY;
+          camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
+          if (window.innerWidth < 768) { basePlanetY = 4.5; sistemaPlanetario.position.set(1.2, basePlanetY, -4); sistemaPlanetario.scale.set(0.5, 0.5, 0.5); constelacionGroup.scale.set(0.6, 0.6, 0.6); } 
+          else { basePlanetY = 3; sistemaPlanetario.position.set(4, basePlanetY, -2); sistemaPlanetario.scale.set(1, 1, 1); constelacionGroup.scale.set(1, 1, 1); }
+          if(estado === 0) targetPlanetY = basePlanetY;
       }
-      window.addEventListener('resize', actualizarLayout3D);
-      actualizarLayout3D(); 
+      window.addEventListener('resize', actualizarLayout3D); actualizarLayout3D(); 
 
-      const btnGalaxia2 = document.getElementById('btn-galaxia') as HTMLButtonElement;
+      // --- NAVEGACIÓN ---
+      const btnGalaxia = document.getElementById('btn-galaxia') as HTMLButtonElement;
+      const btnConstelacion = document.getElementById('btn-constelacion') as HTMLButtonElement;
       const btnVolver = document.getElementById('btn-volver') as HTMLButtonElement;
-      
-      let enViaje = false;
-      let modoGalaxia = false;
-      let velocidadGalaxia = 0.02; 
+      let enViaje = false; let velocidadGalaxia = 0.02; 
 
-      btnGalaxia2.addEventListener('click', () => {
-          if(enViaje) return;
-          enViaje = true;
-          modoGalaxia = true;
+      // Tierra -> Galaxia
+      btnGalaxia.addEventListener('click', () => {
+          if(enViaje) return; enViaje = true; estado = 1;
           
           document.getElementById('zona-scroll')!.style.display = 'none';
           document.getElementById('ui-textos')!.style.opacity = '0';
-          btnGalaxia2.style.opacity = '0';
-          btnGalaxia2.style.pointerEvents = 'none';
+          btnGalaxia.classList.add('oculto');
           document.getElementById('lluvia-meteoritos')!.style.opacity = '0';
           document.getElementById('universo-fondo')!.style.opacity = '0';
           document.getElementById('nebulosa')!.style.opacity = '0'; 
           
-          galaxiaGroup.visible = true;
-          velocidadGalaxia = 0.025; 
+          galaxiaGroup.visible = true; velocidadGalaxia = 0.025; 
+          targetCameraZ = 6; targetPlanetY = -15; targetGalaxiaZ = -10; 
           
-          targetCameraZ = 6; 
-          targetPlanetY = -15; 
-          targetGalaxiaZ = -10; 
+          setTimeout(() => { document.getElementById('ui-galaxia')!.classList.remove('oculto-total'); enViaje = false; }, 2500);
+      });
+
+      // Galaxia -> Constelación
+      btnConstelacion.addEventListener('click', () => {
+          if(enViaje) return; enViaje = true; estado = 2;
+          
+          document.getElementById('ui-galaxia')!.classList.add('oculto-total');
+          constelacionGroup.visible = true;
+          
+          targetGalaxiaZ = 15; // La galaxia vuela hacia atrás (pasa la cámara)
+          targetConstelacionZ = -8; // La constelación se acerca
           
           setTimeout(() => {
-              document.getElementById('ui-galaxia')!.classList.remove('oculto-total');
+              galaxiaGroup.visible = false; // Se oculta tras pasar
+              document.getElementById('ui-constelacion')!.classList.remove('oculto-total');
               enViaje = false;
           }, 2500);
       });
 
+      // Constelación -> Tierra
       btnVolver.addEventListener('click', () => {
-          if(enViaje) return;
-          enViaje = true;
+          if(enViaje) return; enViaje = true; estado = 0;
           
-          document.getElementById('ui-galaxia')!.classList.add('oculto-total');
+          document.getElementById('ui-constelacion')!.classList.add('oculto-total');
           
-          targetCameraZ = 12;
-          targetPlanetY = basePlanetY;
-          targetGalaxiaZ = -30; 
+          targetConstelacionZ = -35; 
+          targetCameraZ = 12; targetPlanetY = basePlanetY; targetGalaxiaZ = -35; 
           
           setTimeout(() => {
-              modoGalaxia = false;
-              galaxiaGroup.visible = false;
+              constelacionGroup.visible = false;
               
               document.getElementById('zona-scroll')!.style.display = 'block';
               document.getElementById('lluvia-meteoritos')!.style.opacity = '1';
@@ -353,40 +319,26 @@
           }, 2000);
       });
 
-      let tiempoAsteroide = 0;
-      let tiempoShader = 0;
-
+      let tiempoAsteroide = 0; let tiempoShader = 0;
       function animate3D() {
         requestAnimationFrame(animate3D);
-        
-        targetX = mouseX * 2;
-        targetY = mouseY * 2;
-        camera.position.x += (targetX - camera.position.x) * 0.02;
-        camera.position.y += (-targetY - camera.position.y) * 0.02;
-        camera.lookAt(scene.position);
+        camera.position.x += (mouseX*2 - camera.position.x) * 0.02; camera.position.y += (-mouseY*2 - camera.position.y) * 0.02; camera.lookAt(scene.position);
 
         camera.position.z += (targetCameraZ - camera.position.z) * 0.02;
         sistemaPlanetario.position.y += (targetPlanetY - sistemaPlanetario.position.y) * 0.03;
         asteroid.position.y = sistemaPlanetario.position.y + Math.sin(tiempoAsteroide * 1.5) * 6; 
-        galaxiaGroup.position.z += (targetGalaxiaZ - galaxiaGroup.position.z) * 0.02;
-
-        earth.rotation.y += 0.001;       
-        clouds.rotation.y += 0.0015; 
-        moonPivot.rotation.y += 0.003;   
-        moon.rotation.y += 0.002;        
         
-        tiempoAsteroide += 0.005;
-        asteroid.position.x = Math.cos(tiempoAsteroide * 0.8) * 8;
-        asteroid.position.z = Math.sin(tiempoAsteroide * 1.2) * 5; 
-        asteroid.rotation.x += 0.02;
-        asteroid.rotation.y += 0.01;
+        galaxiaGroup.position.z += (targetGalaxiaZ - galaxiaGroup.position.z) * 0.02;
+        constelacionGroup.position.z += (targetConstelacionZ - constelacionGroup.position.z) * 0.02;
 
-        if(galaxiaGroup.visible) {
-            tiempoShader += 0.01;
-            starUniforms.uTime.value = tiempoShader;
-            velocidadGalaxia += (0.0001 - velocidadGalaxia) * 0.01; 
-            galaxiaGroup.rotation.y += velocidadGalaxia;
-        }
+        earth.rotation.y += 0.001; clouds.rotation.y += 0.0015; moonPivot.rotation.y += 0.003; moon.rotation.y += 0.002;        
+        tiempoAsteroide += 0.005; asteroid.position.x = Math.cos(tiempoAsteroide*0.8)*8; asteroid.position.z = Math.sin(tiempoAsteroide*1.2)*5; asteroid.rotation.x += 0.02; asteroid.rotation.y += 0.01;
+
+        tiempoShader += 0.01; starUniforms.uTime.value = tiempoShader;
+        
+        if(galaxiaGroup.visible) { velocidadGalaxia += (0.0001 - velocidadGalaxia) * 0.01; galaxiaGroup.rotation.y += velocidadGalaxia; }
+        if(constelacionGroup.visible) { constelacionGroup.rotation.y += 0.001; constelacionGroup.rotation.z = Math.sin(tiempoShader*0.5)*0.05; }
+
         renderer.render(scene, camera);
       }
       animate3D();
@@ -396,173 +348,85 @@
       // ==========================================
       const canvasFondo = document.getElementById('universo-fondo') as HTMLCanvasElement;
       const ctxFondo = canvasFondo.getContext('2d') as CanvasRenderingContext2D;
-      
       const foto = document.getElementById('foto-annarella') as HTMLImageElement;
       const textoCumple = document.getElementById('texto-cumple') as HTMLDivElement;
       const btnGalaxiaScroll = document.getElementById('btn-galaxia') as HTMLButtonElement;
       const indicadorScroll = document.getElementById('indicador-scroll') as HTMLDivElement;
       
-      let width: number, height: number;
-      let estrellasFondo: any[] = []; 
-
+      let width: number, height: number, estrellasFondo: any[] = []; 
       function iniciarFondo() {
-        width = canvasFondo.width = window.innerWidth;
-        height = canvasFondo.height = window.innerHeight;
-        
-        estrellasFondo = [];
-        const cantidadFondo = width < 768 ? 200 : 400;
-        for (let i = 0; i < cantidadFondo; i++) {
-          estrellasFondo.push({ x: Math.random() * width, y: Math.random() * height, tamano: Math.random() * 1.5, faseBrillo: Math.random() * Math.PI * 2, velocidadBrillo: Math.random() * 0.5 + 0.2 });
-        }
+        width = canvasFondo.width = window.innerWidth; height = canvasFondo.height = window.innerHeight; estrellasFondo = [];
+        for (let i = 0; i < (width < 768 ? 200 : 400); i++) estrellasFondo.push({ x: Math.random() * width, y: Math.random() * height, tamano: Math.random() * 1.5, faseBrillo: Math.random() * Math.PI * 2, velocidadBrillo: Math.random() * 0.5 + 0.2 });
       }
-
       window.addEventListener('scroll', () => {
-        if(document.getElementById('ui-galaxia')!.classList.contains('oculto-total') === false) return;
-
-        const scrollMaximo = document.body.scrollHeight - window.innerHeight;
-        let progresoScroll = Math.min(Math.max(window.scrollY / scrollMaximo, 0), 1);
+        if(estado !== 0) return;
+        const p = Math.min(Math.max(window.scrollY / (document.body.scrollHeight - window.innerHeight), 0), 1);
+        indicadorScroll.style.opacity = p > 0.05 ? '0' : '0.7';
         
-        if(progresoScroll > 0.05) indicadorScroll.style.opacity = '0';
-        else indicadorScroll.style.opacity = '0.7';
+        let pFoto = Math.min(Math.max((p - 0.2) * 2, 0), 1);
+        foto.style.opacity = pFoto.toString(); foto.style.transform = `translate(-50%, ${50 - pFoto*50}px) scale(${0.8 + pFoto*0.2})`;
+        
+        let pTexto = Math.min(Math.max((p - 0.5) * 2.5, 0), 1);
+        textoCumple.style.opacity = pTexto.toString(); textoCumple.style.transform = `translate(-50%, ${30 - pTexto*30}px) scale(${0.9 + pTexto*0.1})`;
 
-        if (progresoScroll > 0.2) {
-           let progresoFoto = Math.min((progresoScroll - 0.2) * 2, 1);
-           foto.style.opacity = progresoFoto.toString();
-           foto.style.transform = `translate(-50%, 0) scale(${0.8 + (progresoFoto * 0.2)})`;
-        } else {
-           foto.style.opacity = "0";
-           foto.style.transform = `translate(-50%, 50px) scale(0.8)`;
-        }
-
-        if (progresoScroll > 0.5) {
-           let progresoTexto = Math.min((progresoScroll - 0.5) * 2.5, 1);
-           textoCumple.style.opacity = progresoTexto.toString();
-           textoCumple.style.transform = `translate(-50%, 0) scale(${0.9 + (progresoTexto * 0.1)})`;
-        } else {
-           textoCumple.style.opacity = "0";
-           textoCumple.style.transform = `translate(-50%, 30px) scale(0.9)`;
-        }
-
-        if (progresoScroll > 0.85) {
-            btnGalaxiaScroll.classList.remove('oculto');
-            btnGalaxiaScroll.style.pointerEvents = 'auto';
-        } else {
-            btnGalaxiaScroll.classList.add('oculto');
-            btnGalaxiaScroll.style.pointerEvents = 'none';
-        }
+        if (p > 0.85) { btnGalaxiaScroll.classList.remove('oculto'); btnGalaxiaScroll.style.pointerEvents = 'auto'; } 
+        else { btnGalaxiaScroll.classList.add('oculto'); btnGalaxiaScroll.style.pointerEvents = 'none'; }
       });
 
       function animarFondo() {
-        ctxFondo.clearRect(0, 0, width, height);
-        const tiempo = Date.now() * 0.001; 
-        estrellasFondo.forEach(estrella => {
-          let oscilacion = Math.sin(tiempo * estrella.velocidadBrillo + estrella.faseBrillo);
-          ctxFondo.fillStyle = `rgba(255, 255, 255, ${0.3 + (oscilacion * 0.4)})`;
-          ctxFondo.beginPath();
-          ctxFondo.arc(estrella.x, estrella.y, estrella.tamano, 0, Math.PI * 2);
-          ctxFondo.fill();
-        });
-        requestAnimationFrame(animarFondo);
+        ctxFondo.clearRect(0, 0, width, height); const t = Date.now() * 0.001; 
+        estrellasFondo.forEach(e => {
+          ctxFondo.fillStyle = `rgba(255, 255, 255, ${0.3 + (Math.sin(t * e.velocidadBrillo + e.faseBrillo) * 0.4)})`;
+          ctxFondo.beginPath(); ctxFondo.arc(e.x, e.y, e.tamano, 0, Math.PI * 2); ctxFondo.fill();
+        }); requestAnimationFrame(animarFondo);
       }
-
-      window.addEventListener('resize', iniciarFondo);
-      iniciarFondo();
-      animarFondo();
+      window.addEventListener('resize', iniciarFondo); iniciarFondo(); animarFondo();
     </script>
   </body>
 </html>
 
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap');
 
-  body, html {
-    margin: 0; padding: 0;
-    background-color: #000000; 
-    color: white;
-    font-family: 'Montserrat', sans-serif;
-    overflow-x: hidden;
-  }
-  
+  body, html { margin: 0; padding: 0; background-color: #000000; color: white; font-family: 'Montserrat', sans-serif; overflow-x: hidden; }
   .nebulosa { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: radial-gradient(circle at 20% 30%, rgba(55, 20, 80, 0.4) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(20, 60, 100, 0.3) 0%, transparent 50%), radial-gradient(circle at 50% 100%, rgba(100, 20, 60, 0.25) 0%, transparent 60%); z-index: 0; transition: opacity 1.5s ease; }
   #universo-fondo { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; transition: opacity 1.5s ease; }
   #contenedor-3d { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 2; pointer-events: none; }
   #lluvia-meteoritos { z-index: 3; pointer-events: none; transition: opacity 1.5s ease; }
   
-  /* --- BOTÓN FLOTANTE MÚSICA --- */
-  .btn-flotante {
-    position: fixed; top: 20px; right: 20px; z-index: 100;
-    background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white; padding: 10px 20px; border-radius: 30px; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 0.9rem;
-    cursor: pointer; box-shadow: 0 0 15px rgba(255, 20, 147, 0.3); transition: all 0.3s ease;
-  }
+  .btn-flotante { position: fixed; top: 20px; right: 20px; z-index: 100; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); color: white; padding: 10px 20px; border-radius: 30px; font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 0.9rem; cursor: pointer; box-shadow: 0 0 15px rgba(255, 20, 147, 0.3); transition: all 0.3s ease; }
   .btn-flotante:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
   .btn-flotante.activo { background: rgba(255, 20, 147, 0.4); border-color: #ff1493; box-shadow: 0 0 20px rgba(255, 20, 147, 0.8); }
 
-  /* --- UI TIERRA --- */
   .ui-contenedor { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10; pointer-events: none; transition: opacity 1s ease; }
+  #foto-annarella { position: absolute; top: 15vh; left: 50%; transform: translate(-50%, 50px); width: clamp(160px, 40vw, 300px); height: clamp(160px, 40vw, 300px); object-fit: cover; border-radius: 50%; box-shadow: 0 0 40px rgba(255, 105, 180, 0.6), 0 0 80px rgba(0, 242, 254, 0.4); border: 4px solid rgba(255, 255, 255, 0.9); opacity: 0; transition: transform 0.1s linear, opacity 0.1s linear; }
 
-  #foto-annarella {
-    position: absolute; top: 15vh; left: 50%;
-    transform: translate(-50%, 50px);
-    width: clamp(160px, 40vw, 300px); height: clamp(160px, 40vw, 300px);
-    object-fit: cover; border-radius: 50%;
-    box-shadow: 0 0 40px rgba(255, 105, 180, 0.6), 0 0 80px rgba(0, 242, 254, 0.4);
-    border: 4px solid rgba(255, 255, 255, 0.9);
-    opacity: 0; transition: transform 0.1s linear, opacity 0.1s linear;
-  }
-
-  .mensaje-elegante {
-    position: absolute; top: calc(15vh + clamp(160px, 40vw, 300px) + 30px); left: 50%;
-    transform: translate(-50%, 30px); text-align: center; display: flex; flex-direction: column; gap: 10px;
-    opacity: 0; transition: transform 0.1s linear, opacity 0.1s linear;
-  }
+  .mensaje-elegante { position: absolute; top: calc(15vh + clamp(160px, 40vw, 300px) + 30px); left: 50%; transform: translate(-50%, 30px); text-align: center; display: flex; flex-direction: column; gap: 10px; opacity: 0; transition: transform 0.1s linear, opacity 0.1s linear; }
   .mensaje-elegante span { line-height: 1; letter-spacing: 4px; text-shadow: 0 0 20px rgba(255, 105, 180, 0.8), 0 0 40px rgba(0, 242, 254, 0.6); }
   .feliz { font-size: clamp(2rem, 8vw, 4rem); font-weight: 800; color: #fff; }
   .cumple { font-size: clamp(2.5rem, 10vw, 5rem); font-weight: 900; color: #fff; background: -webkit-linear-gradient(45deg, #ff69b4, #00f2fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .nombre { font-size: clamp(2rem, 8vw, 4rem); font-weight: 800; color: #fff; }
 
-  /* --- BOTÓN IR A GALAXIA --- */
-  #btn-galaxia {
-    position: fixed; bottom: 10vh; left: 50%; transform: translateX(-50%);
-    padding: 15px 40px; font-size: 1.2rem; font-weight: 800; font-family: 'Montserrat', sans-serif;
-    color: white; background: linear-gradient(45deg, #ff1493, #00f2fe);
-    border: none; border-radius: 30px; cursor: pointer; z-index: 9999; pointer-events: auto; 
-    box-shadow: 0 0 20px rgba(255, 20, 147, 0.5), 0 0 40px rgba(0, 242, 254, 0.5);
-    transition: all 0.5s ease; animation: palpitar 2s infinite; touch-action: manipulation;
-  }
+  #btn-galaxia { position: fixed; bottom: 10vh; left: 50%; transform: translateX(-50%); padding: 15px 40px; font-size: 1.2rem; font-weight: 800; font-family: 'Montserrat', sans-serif; color: white; background: linear-gradient(45deg, #ff1493, #00f2fe); border: none; border-radius: 30px; cursor: pointer; z-index: 9999; pointer-events: auto; box-shadow: 0 0 20px rgba(255, 20, 147, 0.5), 0 0 40px rgba(0, 242, 254, 0.5); transition: all 0.5s ease; animation: palpitar 2s infinite; touch-action: manipulation; }
   #btn-galaxia:hover, #btn-galaxia:active { transform: translateX(-50%) scale(1.1); box-shadow: 0 0 30px rgba(255, 20, 147, 0.8), 0 0 60px rgba(0, 242, 254, 0.8); }
   #btn-galaxia.oculto { opacity: 0; pointer-events: none !important; transform: translateX(-50%) translateY(20px); }
 
-  /* --- UI GALAXIA --- */
-  .ui-galaxia {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: 60; display: flex; flex-direction: column; justify-content: center; align-items: center;
-    background: radial-gradient(circle, rgba(0,0,0,0.6) 0%, transparent 90%);
-    transition: opacity 1.5s ease, transform 1.5s ease;
-  }
-  .ui-galaxia.oculto-total { opacity: 0; transform: scale(1.1); pointer-events: none; }
+  /* UI GALAXIA Y CONSTELACIÓN */
+  .ui-galaxia, .ui-constelacion { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 60; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle, rgba(0,0,0,0.6) 0%, transparent 90%); transition: opacity 1.5s ease, transform 1.5s ease; }
+  .oculto-total { opacity: 0; transform: scale(1.1); pointer-events: none; }
   
-  .mensaje-romantico {
-    width: 85%; max-width: 600px;
-    text-align: center; font-size: clamp(1.2rem, 4vw, 1.8rem);
-    font-weight: 400; line-height: 1.5; color: #fff;
-    text-shadow: 0 0 10px rgba(255, 105, 180, 0.8), 0 0 20px rgba(0, 242, 254, 0.6);
-    margin-bottom: 40px;
-  }
+  .mensaje-romantico { width: 85%; max-width: 600px; text-align: center; font-size: clamp(1.2rem, 4vw, 1.8rem); font-weight: 400; line-height: 1.5; color: #fff; text-shadow: 0 0 10px rgba(255, 105, 180, 0.8), 0 0 20px rgba(0, 242, 254, 0.6); margin-bottom: 40px; }
+  
+  .titulo-constelacion { font-size: clamp(1.5rem, 5vw, 2.5rem); font-weight: 900; color: #00f2fe; text-shadow: 0 0 20px #00f2fe; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;}
+  .mensaje-regalo { width: 85%; max-width: 600px; text-align: center; font-size: clamp(1rem, 3.5vw, 1.3rem); font-weight: 400; line-height: 1.6; color: #e2e8f0; text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); margin-bottom: 30px; }
+  
+  .numero-whatsapp { font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 900; color: #25D366; text-decoration: none; padding: 10px 25px; background: rgba(37, 211, 102, 0.1); border: 2px solid #25D366; border-radius: 30px; margin-bottom: 40px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(37, 211, 102, 0.4); }
+  .numero-whatsapp:hover { transform: scale(1.05); background: rgba(37, 211, 102, 0.2); box-shadow: 0 0 30px rgba(37, 211, 102, 0.8); }
 
-  #btn-volver {
-    padding: 12px 30px; font-size: 1rem; font-weight: 800; font-family: 'Montserrat', sans-serif;
-    color: white; background: transparent;
-    border: 2px solid #00f2fe; border-radius: 30px; cursor: pointer; pointer-events: auto; touch-action: manipulation;
-    box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); transition: all 0.3s ease;
-  }
-  #btn-volver:hover { background: rgba(0, 242, 254, 0.2); box-shadow: 0 0 25px rgba(0, 242, 254, 0.6); transform: scale(1.05); }
+  #btn-constelacion, #btn-volver { padding: 15px 35px; font-size: 1.1rem; font-weight: 800; font-family: 'Montserrat', sans-serif; color: white; background: transparent; border: 2px solid #00f2fe; border-radius: 30px; cursor: pointer; pointer-events: auto; touch-action: manipulation; box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); transition: all 0.3s ease; }
+  #btn-constelacion:hover, #btn-volver:hover { background: rgba(0, 242, 254, 0.2); box-shadow: 0 0 25px rgba(0, 242, 254, 0.6); transform: scale(1.05); }
 
-  @keyframes palpitar {
-    0% { box-shadow: 0 0 20px rgba(255, 20, 147, 0.5), 0 0 40px rgba(0, 242, 254, 0.5); }
-    50% { box-shadow: 0 0 40px rgba(255, 20, 147, 0.8), 0 0 80px rgba(0, 242, 254, 0.8); }
-    100% { box-shadow: 0 0 20px rgba(255, 20, 147, 0.5), 0 0 40px rgba(0, 242, 254, 0.5); }
-  }
+  @keyframes palpitar { 0% { box-shadow: 0 0 20px rgba(255, 20, 147, 0.5), 0 0 40px rgba(0, 242, 254, 0.5); } 50% { box-shadow: 0 0 40px rgba(255, 20, 147, 0.8), 0 0 80px rgba(0, 242, 254, 0.8); } 100% { box-shadow: 0 0 20px rgba(255, 20, 147, 0.5), 0 0 40px rgba(0, 242, 254, 0.5); } }
 
   .contenedor-scroll { position: relative; height: 350vh; z-index: 20; }
   .indicador { position: fixed; top: 5%; width: 100%; text-align: center; pointer-events: none; transition: opacity 0.5s; text-shadow: 0px 0px 10px rgba(255,255,255,0.5); }
@@ -578,15 +442,7 @@
   .fugaz-3 { top: 85%; left: 120%; animation: animarFugaz 14s linear infinite; animation-delay: 8s; }
   .meteoro-1 { top: 15%; left: 130%; animation: animarFugaz 15s linear infinite; animation-delay: 5s; }
 
-  @keyframes animarFugaz {
-    0% { transform: translateX(0) translateY(0) rotate(-35deg); opacity: 1; }
-    3% { opacity: 1; }
-    10% { opacity: 0; }
-    100% { transform: translateX(-2500px) translateY(1750px) rotate(-35deg); opacity: 0; }
-  }
+  @keyframes animarFugaz { 0% { transform: translateX(0) translateY(0) rotate(-35deg); opacity: 1; } 3% { opacity: 1; } 10% { opacity: 0; } 100% { transform: translateX(-2500px) translateY(1750px) rotate(-35deg); opacity: 0; } }
 
-  @media (max-width: 768px) { 
-    .indicador h1 { font-size: 5vw; } 
-    .btn-flotante { top: 10px; right: 10px; font-size: 0.8rem; padding: 8px 15px; }
-  }
+  @media (max-width: 768px) { .indicador h1 { font-size: 5vw; } .btn-flotante { top: 10px; right: 10px; font-size: 0.8rem; padding: 8px 15px; } }
 </style>
