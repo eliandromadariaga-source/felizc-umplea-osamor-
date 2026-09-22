@@ -62,7 +62,6 @@
         Como pensábamos que te ibas de viaje el martes, decidimos resguardarlo, pero será entregado en el momento exacto que tú lo solicites.<br><br>
         Si deseas que te lo entreguemos personalmente, por favor escribe a este número:
       </p>
-      <!-- IMPORTANTE: PON TU NÚMERO DE TELÉFONO AQUÍ -->
       <a href="https://wa.me/5804247545638" target="_blank" class="numero-whatsapp">📱 0424-7545638</a>
       
       <button id="btn-volver">VOLVER AL INICIO</button>
@@ -111,12 +110,13 @@
       });
 
       // ==========================================
-      // MOTOR 3D: GALAXIA CON SHADERS RESTAURADOS
+      // MOTOR 3D: GALAXIA INMERSIVA Y FUEGOS ARTIFICIALES
       // ==========================================
       const THREE = window.THREE; 
       const contenedor3D = document.getElementById('contenedor-3d');
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+      // Cámara más inmersiva (FOV 60 para sentir la velocidad)
+      const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
       
       const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight); 
@@ -153,78 +153,77 @@
       const asteroid = new THREE.Mesh(asteroidGeo, new THREE.MeshStandardMaterial({ map: textureLoader.load(urlMoon), color: 0xaaaaaa }));
       scene.add(asteroid); 
 
-      // --- SHADER ESTRELLAS VIVAS (RESTAURADO) ---
+      // --- SHADER ESTRELLAS ÉPICAS ---
       const starUniforms = { uTime: { value: 0 } };
       const materialEstrellas = new THREE.ShaderMaterial({
           uniforms: starUniforms,
           vertexShader: `
               attribute float size; attribute float phase; varying vec3 vColor; varying float vAlpha; uniform float uTime;
               void main() {
-                  vColor = color; float twinkle = (sin(uTime * 2.0 + phase) + 1.0) * 0.5; vAlpha = 0.4 + (twinkle * 0.6); 
+                  vColor = color; float twinkle = (sin(uTime * 3.0 + phase) + 1.0) * 0.5; vAlpha = 0.5 + (twinkle * 0.8); 
                   vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                  gl_PointSize = size * (40.0 / -mvPosition.z); gl_Position = projectionMatrix * mvPosition;
+                  gl_PointSize = size * (50.0 / -mvPosition.z); gl_Position = projectionMatrix * mvPosition;
               }
           `,
           fragmentShader: `
               varying vec3 vColor; varying float vAlpha;
               void main() {
                   float dist = length(gl_PointCoord - vec2(0.5)); if (dist > 0.5) discard;
-                  float glow = exp(-dist * dist * 15.0); float finalAlpha = max(glow, 0.2) * vAlpha;
+                  float glow = exp(-dist * dist * 20.0); float finalAlpha = max(glow, 0.2) * vAlpha;
                   gl_FragColor = vec4(vColor, finalAlpha);
               }
           `,
           transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
       });
 
-      // --- 2. LA GALAXIA (CON SHADERS) ---
+      // --- 2. LA GALAXIA MASIVA ---
       const galaxiaGroup = new THREE.Group();
       scene.add(galaxiaGroup);
-      galaxiaGroup.visible = false; galaxiaGroup.position.z = -150; galaxiaGroup.rotation.x = 0.8; 
+      galaxiaGroup.visible = false; galaxiaGroup.position.z = -150; galaxiaGroup.rotation.x = 1.0; 
 
       function crearGalaxia(cantidad, radioGalaxia) {
           const geo = new THREE.BufferGeometry();
           const pos = new Float32Array(cantidad * 3), col = new Float32Array(cantidad * 3), siz = new Float32Array(cantidad), pha = new Float32Array(cantidad);
           
-          // Mantenemos la dispersión mejorada que aprendimos, pero con la belleza de los shaders
-          const colorCentro = new THREE.Color(0xfff5e6); 
+          const colorCentro = new THREE.Color(0xffffff); // Blanco enceguecedor
           const colorRosa = new THREE.Color(0xff1493);
           const colorAzul = new THREE.Color(0x00f2fe);
-          const colorBorde = new THREE.Color(0x001133); 
           
           for(let i = 0; i < cantidad; i++) {
-              const distribucion = Math.pow(Math.random(), 4); 
+              // Núcleo mucho más denso y enorme
+              const distribucion = Math.pow(Math.random(), 3); 
               const radio = distribucion * radioGalaxia; 
               
-              const angulo = (i % 4) * ((Math.PI * 2) / 4);
-              const giro = radio * 0.4; 
+              const angulo = (i % 5) * ((Math.PI * 2) / 5);
+              const giro = radio * 0.5; 
               
-              const dispersionRadio = 2.0;
+              const dispersionRadio = 3.5;
               const dispersion = (Math.random() - 0.5) * (radio / radioGalaxia) * dispersionRadio;
               
-              const alturaBulge = (Math.random() - 0.5) * 4.0 * Math.exp(-radio/3);
+              const alturaBulge = (Math.random() - 0.5) * 6.0 * Math.exp(-radio/2);
 
               pos[i*3] = Math.cos(angulo + giro) * radio + (Math.random()-0.5)*dispersion;
               pos[i*3+1] = alturaBulge;
               pos[i*3+2] = Math.sin(angulo + giro) * radio + (Math.random()-0.5)*dispersion;
               
               let mixedColor = colorCentro.clone();
-              if(radio > 1) mixedColor.lerp(i%2==0 ? colorRosa : colorAzul, radio / (radioGalaxia * 0.4));
-              if(radio > radioGalaxia * 0.6) mixedColor.lerp(colorBorde, (radio - radioGalaxia*0.6) / (radioGalaxia*0.4));
+              if(radio > 1.5) mixedColor.lerp(i%2==0 ? colorRosa : colorAzul, radio / (radioGalaxia * 0.5));
 
-              let intensidad = Math.max(0.1, 1.2 - (radio / radioGalaxia));
+              let intensidad = Math.max(0.2, 1.5 - (radio / radioGalaxia));
               mixedColor.multiplyScalar(intensidad);
 
               col[i*3] = mixedColor.r; col[i*3+1] = mixedColor.g; col[i*3+2] = mixedColor.b;
-              siz[i] = Math.random() * 2 + 0.5; pha[i] = Math.random() * Math.PI * 2;
+              // Estrellas más grandes para llenar la pantalla
+              siz[i] = Math.random() * 3.5 + 1.0; 
+              pha[i] = Math.random() * Math.PI * 2;
           }
           geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
           geo.setAttribute('size', new THREE.BufferAttribute(siz, 1)); geo.setAttribute('phase', new THREE.BufferAttribute(pha, 1));
           return geo;
       }
-      // Usamos el material shader para la galaxia
-      galaxiaGroup.add(new THREE.Points(crearGalaxia(15000, 25), materialEstrellas));
+      galaxiaGroup.add(new THREE.Points(crearGalaxia(20000, 30), materialEstrellas));
 
-      // --- 3. CONSTELACIÓN DE LIBRA ---
+      // --- 3. CONSTELACIÓN DE LIBRA CON FUEGOS ARTIFICIALES ---
       const constelacionGroup = new THREE.Group();
       scene.add(constelacionGroup);
       constelacionGroup.position.z = -150; 
@@ -238,24 +237,60 @@
       const libPuntos = [p1, p2, p3, p4, p5];
       const libLineas = [p5, p1, p1, p2, p2, p3, p3, p4, p1, p3]; 
 
-      const constGeo = new THREE.BufferGeometry().setFromPoints(libPuntos);
-      const constCol = new Float32Array(5 * 3); const constSiz = new Float32Array(5); const constPha = new Float32Array(5);
-      for(let i=0; i<5; i++) { 
-          constCol[i*3] = 1; constCol[i*3+1] = 1; constCol[i*3+2] = 1; 
-          constSiz[i] = 15.0; // Estrellas gigantes para la constelación
-          constPha[i] = Math.random() * Math.PI;
+      // Generar destellos de fuegos artificiales alrededor de cada punto
+      const particulasPorPunto = 30;
+      const totalParticulas = 5 + (5 * particulasPorPunto);
+      
+      const constPos = new Float32Array(totalParticulas * 3);
+      const constCol = new Float32Array(totalParticulas * 3); 
+      const constSiz = new Float32Array(totalParticulas); 
+      const constPha = new Float32Array(totalParticulas);
+
+      let idx = 0;
+      // Primero los 5 soles principales
+      for(let i=0; i<5; i++) {
+          constPos[idx*3] = libPuntos[i].x; constPos[idx*3+1] = libPuntos[i].y; constPos[idx*3+2] = libPuntos[i].z;
+          constCol[idx*3] = 1; constCol[idx*3+1] = 1; constCol[idx*3+2] = 1; // Blanco brillante
+          constSiz[idx] = 25.0; // Gigantes
+          constPha[idx] = Math.random() * Math.PI;
+          idx++;
+          
+          // Luego las partículas de fuegos artificiales esparcidas alrededor
+          for(let j=0; j<particulasPorPunto; j++) {
+              const r = Math.random() * 1.5; // Radio de explosión
+              const ang = Math.random() * Math.PI * 2;
+              const xOff = Math.cos(ang) * r;
+              const yOff = Math.sin(ang) * r;
+              
+              constPos[idx*3] = libPuntos[i].x + xOff; 
+              constPos[idx*3+1] = libPuntos[i].y + yOff; 
+              constPos[idx*3+2] = libPuntos[i].z + (Math.random()-0.5);
+              
+              // Colores mágicos turquesa/violeta para los destellos
+              const isCyan = Math.random() > 0.5;
+              constCol[idx*3] = isCyan ? 0.0 : 0.8; 
+              constCol[idx*3+1] = isCyan ? 0.9 : 0.2; 
+              constCol[idx*3+2] = 1.0; 
+              
+              constSiz[idx] = Math.random() * 8.0 + 2.0; 
+              constPha[idx] = Math.random() * Math.PI * 2; // Parpadeo rápido
+              idx++;
+          }
       } 
+
+      const constGeo = new THREE.BufferGeometry();
+      constGeo.setAttribute('position', new THREE.BufferAttribute(constPos, 3));
       constGeo.setAttribute('color', new THREE.BufferAttribute(constCol, 3));
       constGeo.setAttribute('size', new THREE.BufferAttribute(constSiz, 1));
       constGeo.setAttribute('phase', new THREE.BufferAttribute(constPha, 1));
-      
-      constelacionGroup.add(new THREE.Points(constGeo, materialEstrellas)); // Usa shader también
+      constelacionGroup.add(new THREE.Points(constGeo, materialEstrellas)); 
 
+      // Líneas de la constelación brillantes
       const lineGeo = new THREE.BufferGeometry().setFromPoints(libLineas);
-      const lineMat = new THREE.LineBasicMaterial({ color: 0x00f2fe, transparent: true, opacity: 0.6, linewidth: 2 });
+      const lineMat = new THREE.LineBasicMaterial({ color: 0x00f2fe, transparent: true, opacity: 0.9, linewidth: 3 });
       constelacionGroup.add(new THREE.LineSegments(lineGeo, lineMat));
 
-      // --- SISTEMA DE CÁMARA FLUIDA Y ANIMACIONES ---
+      // --- SISTEMA DE CÁMARA Y ANIMACIONES ---
       let estado = 0; 
       let basePlanetY = 3;
       let targetPlanetY = basePlanetY;
@@ -270,7 +305,7 @@
           camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
           if (window.innerWidth < 768) { 
               basePlanetY = 4.5; sistemaPlanetario.position.set(1.2, basePlanetY, -4); sistemaPlanetario.scale.set(0.5, 0.5, 0.5); 
-              galaxiaGroup.scale.set(0.8, 0.8, 0.8); constelacionGroup.scale.set(0.6, 0.6, 0.6); 
+              galaxiaGroup.scale.set(0.6, 0.6, 0.6); constelacionGroup.scale.set(0.6, 0.6, 0.6); 
           } else { 
               basePlanetY = 3; sistemaPlanetario.position.set(4, basePlanetY, -2); sistemaPlanetario.scale.set(1, 1, 1); 
               galaxiaGroup.scale.set(1, 1, 1); constelacionGroup.scale.set(1, 1, 1); 
@@ -279,7 +314,7 @@
       }
       window.addEventListener('resize', actualizarLayout3D); actualizarLayout3D(); 
 
-      // --- NAVEGACIÓN ---
+      // --- NAVEGACIÓN CINEMÁTICA ---
       const btnGalaxia = document.getElementById('btn-galaxia');
       const btnConstelacion = document.getElementById('btn-constelacion');
       const btnVolver = document.getElementById('btn-volver');
@@ -298,8 +333,9 @@
           targetPlanetY = -40; 
           
           galaxiaGroup.visible = true; 
-          galaxiaGroup.position.z = -80; 
-          targetGalaxiaZ = -20; // Se detiene a buena distancia
+          galaxiaGroup.position.z = -100; 
+          // LA GALAXIA QUEDA MUY CERCA (INMERSIÓN TOTAL)
+          targetGalaxiaZ = -3; 
           targetCameraZ = 6; 
           
           setTimeout(() => { document.getElementById('ui-galaxia').classList.remove('oculto-total'); enViaje = false; }, 3000);
@@ -310,17 +346,18 @@
           
           document.getElementById('ui-galaxia').classList.add('oculto-total');
           
+          // INGRESA A LA GALAXIA: La galaxia vuela violentamente hacia la cámara y la sobrepasa
           targetGalaxiaZ = 20; 
           
           constelacionGroup.visible = true;
           constelacionGroup.position.z = -80;
-          targetConstelacionZ = -8; 
+          targetConstelacionZ = -5; // Acercamos la constelación para que luzca imponente
           
           setTimeout(() => {
               galaxiaGroup.visible = false; 
               document.getElementById('ui-constelacion').classList.remove('oculto-total');
               enViaje = false;
-          }, 3000);
+          }, 2500);
       });
 
       btnVolver.addEventListener('click', () => {
@@ -328,7 +365,9 @@
           
           document.getElementById('ui-constelacion').classList.add('oculto-total');
           
-          targetConstelacionZ = -100; 
+          // Constelación nos pasa por encima
+          targetConstelacionZ = 20; 
+          
           targetCameraZ = 12; 
           targetPlanetY = basePlanetY; 
           targetGalaxiaZ = -150; 
@@ -355,12 +394,13 @@
         camera.position.y += (-mouseY*2 - camera.position.y) * 0.05; 
         camera.lookAt(scene.position);
 
+        // Movimientos acelerados de salto hiperespacial
         camera.position.z += (targetCameraZ - camera.position.z) * 0.04;
         sistemaPlanetario.position.y += (targetPlanetY - sistemaPlanetario.position.y) * 0.03;
         asteroid.position.y = sistemaPlanetario.position.y + Math.sin(tiempoAsteroide * 1.5) * 6; 
         
         galaxiaGroup.position.z += (targetGalaxiaZ - galaxiaGroup.position.z) * 0.03;
-        constelacionGroup.position.z += (targetConstelacionZ - constelacionGroup.position.z) * 0.03;
+        constelacionGroup.position.z += (targetConstelacionZ - constelacionGroup.position.z) * 0.04;
 
         earth.rotation.y += 0.001; 
         moonPivot.rotation.y += 0.003; moon.rotation.y += 0.002;        
@@ -372,8 +412,13 @@
         
         tiempoShader += 0.01; starUniforms.uTime.value = tiempoShader;
 
-        if(galaxiaGroup.visible) { galaxiaGroup.rotation.y += 0.0015; }
-        if(constelacionGroup.visible) { constelacionGroup.rotation.y += 0.0005; }
+        if(galaxiaGroup.visible) { galaxiaGroup.rotation.y += 0.0015; galaxiaGroup.rotation.z += 0.0005; }
+        
+        // Animación dinámica para la constelación
+        if(constelacionGroup.visible) { 
+            constelacionGroup.rotation.y += 0.001; 
+            constelacionGroup.rotation.z = Math.sin(tiempoShader*0.5)*0.03; // Balanceo suave
+        }
 
         renderer.render(scene, camera);
       }
@@ -449,7 +494,7 @@
   #btn-galaxia.oculto { opacity: 0; pointer-events: none !important; transform: translateX(-50%) translateY(20px); }
 
   /* UI GALAXIA Y CONSTELACIÓN */
-  .ui-galaxia, .ui-constelacion { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 60; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle, rgba(0,0,0,0.7) 0%, transparent 90%); transition: opacity 1.5s ease, transform 1.5s ease; }
+  .ui-galaxia, .ui-constelacion { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 60; display: flex; flex-direction: column; justify-content: center; align-items: center; background: radial-gradient(circle, rgba(0,0,0,0.5) 0%, transparent 90%); transition: opacity 1.5s ease, transform 1.5s ease; }
   .oculto-total { opacity: 0; transform: scale(1.1); pointer-events: none; }
   
   .mensaje-romantico { width: 85%; max-width: 600px; text-align: center; font-size: clamp(1.2rem, 4vw, 1.8rem); font-weight: 400; line-height: 1.5; color: #fff; text-shadow: 0 0 10px rgba(255, 105, 180, 0.8), 0 0 20px rgba(0, 242, 254, 0.6); margin-bottom: 40px; }
