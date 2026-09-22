@@ -329,4 +329,320 @@
               varying vec3 vColor; varying float vAlpha;
               void main() {
                   float dist = length(gl_PointCoord - vec2(0.5)); if (dist > 0.5) discard;
-                  float glow = exp(-dist * dist * 20.0); fl
+                  float glow = exp(-dist * dist * 20.0); float finalAlpha = max(glow, 0.2) * vAlpha;
+                  gl_FragColor = vec4(vColor, finalAlpha);
+              }
+          `,
+          transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
+      });
+
+      // --- 2. LA GALAXIA ELEGANTE ---
+      const galaxiaGroup = new THREE.Group();
+      scene.add(galaxiaGroup);
+      galaxiaGroup.visible = false; galaxiaGroup.position.z = -150; galaxiaGroup.rotation.x = 1.0; 
+
+      function crearGalaxiaMágica(cantidad, radioGalaxia) {
+          const geo = new THREE.BufferGeometry();
+          const pos = new Float32Array(cantidad * 3), col = new Float32Array(cantidad * 3), siz = new Float32Array(cantidad), pha = new Float32Array(cantidad);
+          
+          const colorCentro = new THREE.Color(0xffffff); 
+          const colorRosa = new THREE.Color(0xff99cc);   
+          const colorLila = new THREE.Color(0xcc99ff);   
+          const colorAzul = new THREE.Color(0x99ccff);   
+          
+          for(let i = 0; i < cantidad; i++) {
+              const distribucion = Math.pow(Math.random(), 3.0); 
+              const radio = distribucion * radioGalaxia; 
+              
+              const angulo = (i % 5) * ((Math.PI * 2) / 5);
+              const giro = radio * 0.45; 
+              const dispersionRadio = 4.5; 
+              const dispersionX = (Math.random() - 0.5) * (radio / radioGalaxia) * dispersionRadio * 2;
+              const dispersionZ = (Math.random() - 0.5) * (radio / radioGalaxia) * dispersionRadio * 2;
+              const alturaBulge = (Math.random() - 0.5) * 6.0 * Math.exp(-radio/2);
+
+              pos[i*3] = Math.cos(angulo + giro) * radio + dispersionX;
+              pos[i*3+1] = alturaBulge;
+              pos[i*3+2] = Math.sin(angulo + giro) * radio + dispersionZ;
+              
+              let mixedColor = colorCentro.clone();
+              if(radio > 1.0) {
+                  const colorBrazo = i % 2 === 0 ? colorRosa : (i % 3 === 0 ? colorAzul : colorLila);
+                  mixedColor.lerp(colorBrazo, radio / (radioGalaxia * 0.8));
+              }
+              let intensidad = Math.max(0.3, 1.5 - (radio / radioGalaxia));
+              mixedColor.multiplyScalar(intensidad);
+
+              col[i*3] = mixedColor.r; col[i*3+1] = mixedColor.g; col[i*3+2] = mixedColor.b;
+              siz[i] = Math.random() * 2.5 + 0.8; 
+              pha[i] = Math.random() * Math.PI * 2;
+          }
+          geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+          geo.setAttribute('size', new THREE.BufferAttribute(siz, 1)); geo.setAttribute('phase', new THREE.BufferAttribute(pha, 1));
+          return geo;
+      }
+      galaxiaGroup.add(new THREE.Points(crearGalaxiaMágica(25000, 32), materialEstrellas));
+
+      // --- 3. CONSTELACIÓN DE LIBRA ---
+      const constelacionGroup = new THREE.Group();
+      scene.add(constelacionGroup);
+      constelacionGroup.position.z = -150; 
+      constelacionGroup.visible = false;
+
+      const p1 = new THREE.Vector3(-4, -2, 0); 
+      const p2 = new THREE.Vector3(0, 3, 0);   
+      const p3 = new THREE.Vector3(4, -2, 0);  
+      const p4 = new THREE.Vector3(6, 1, 0);   
+      const p5 = new THREE.Vector3(-6, 1, 0);  
+      const libPuntos = [p1, p2, p3, p4, p5];
+      const libLineas = [p5, p1, p1, p2, p2, p3, p3, p4, p1, p3]; 
+
+      const particulasPorPunto = 30;
+      const totalParticulas = 5 + (5 * particulasPorPunto);
+      
+      const constPos = new Float32Array(totalParticulas * 3);
+      const constCol = new Float32Array(totalParticulas * 3); 
+      const constSiz = new Float32Array(totalParticulas); 
+      const constPha = new Float32Array(totalParticulas);
+
+      let idx = 0;
+      for(let i=0; i<5; i++) {
+          constPos[idx*3] = libPuntos[i].x; constPos[idx*3+1] = libPuntos[i].y; constPos[idx*3+2] = libPuntos[i].z;
+          constCol[idx*3] = 1; constCol[idx*3+1] = 1; constCol[idx*3+2] = 1; 
+          constSiz[idx] = 25.0; 
+          constPha[idx] = Math.random() * Math.PI;
+          idx++;
+          
+          for(let j=0; j<particulasPorPunto; j++) {
+              const r = Math.random() * 1.5; 
+              const ang = Math.random() * Math.PI * 2;
+              constPos[idx*3] = libPuntos[i].x + Math.cos(ang) * r; 
+              constPos[idx*3+1] = libPuntos[i].y + Math.sin(ang) * r; 
+              constPos[idx*3+2] = libPuntos[i].z + (Math.random()-0.5);
+              
+              const isPink = Math.random() > 0.5;
+              constCol[idx*3] = isPink ? 1.0 : 1.0; 
+              constCol[idx*3+1] = isPink ? 0.6 : 0.9; 
+              constCol[idx*3+2] = isPink ? 0.8 : 0.5; 
+              
+              constSiz[idx] = Math.random() * 8.0 + 2.0; 
+              constPha[idx] = Math.random() * Math.PI * 2; 
+              idx++;
+          }
+      } 
+
+      const constGeo = new THREE.BufferGeometry();
+      constGeo.setAttribute('position', new THREE.BufferAttribute(constPos, 3));
+      constGeo.setAttribute('color', new THREE.BufferAttribute(constCol, 3));
+      constGeo.setAttribute('size', new THREE.BufferAttribute(constSiz, 1));
+      constGeo.setAttribute('phase', new THREE.BufferAttribute(constPha, 1));
+      constelacionGroup.add(new THREE.Points(constGeo, materialEstrellas)); 
+
+      const lineGeo = new THREE.BufferGeometry().setFromPoints(libLineas);
+      const lineMat = new THREE.LineBasicMaterial({ color: 0xff99cc, transparent: true, opacity: 0.8, linewidth: 3 });
+      constelacionGroup.add(new THREE.LineSegments(lineGeo, lineMat));
+
+      // --- LLUVIA DE FLORES Y CORAZONES 3D ---
+      function crearParticulasCayendo(textura, count, size) {
+          const geo = new THREE.BufferGeometry();
+          const pos = new Float32Array(count * 3);
+          const vel = new Float32Array(count * 3);
+          for(let i=0; i<count; i++) {
+              pos[i*3] = (Math.random() - 0.5) * 80; 
+              pos[i*3+1] = (Math.random() - 0.5) * 80 + 40; 
+              pos[i*3+2] = (Math.random() - 0.5) * 40 - 10; 
+              vel[i*3] = (Math.random() - 0.5) * 0.02; 
+              vel[i*3+1] = - (Math.random() * 0.04 + 0.02); 
+              vel[i*3+2] = (Math.random() - 0.5) * 0.02; 
+          }
+          geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+          geo.setAttribute('velocity', new THREE.BufferAttribute(vel, 3));
+          
+          const mat = new THREE.PointsMaterial({ size: size, map: textura, transparent: true, depthWrite: false });
+          return new THREE.Points(geo, mat);
+      }
+
+      const lluviaCorazones = crearParticulasCayendo(texCorazon, 40, 3.0);
+      const lluviaFlores = crearParticulasCayendo(texFlor, 40, 3.0);
+      const lluviaBrillos = crearParticulasCayendo(texBrillo, 60, 2.5);
+      
+      constelacionGroup.add(lluviaCorazones);
+      constelacionGroup.add(lluviaFlores);
+      constelacionGroup.add(lluviaBrillos);
+
+      // --- SISTEMA DE CÁMARA Y NAVEGACIÓN ---
+      let estado = 0; 
+      let basePlanetY = 3;
+      let targetPlanetY = basePlanetY;
+      let targetGalaxiaZ = -150; 
+      let targetConstelacionZ = -150;
+      let targetCameraZ = 12;
+
+      let mouseX = 0, mouseY = 0;
+      document.addEventListener('mousemove', (e) => { mouseX = (e.clientX - window.innerWidth/2)*0.002; mouseY = (e.clientY - window.innerHeight/2)*0.002; });
+
+      function actualizarLayout3D() {
+          camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
+          if (window.innerWidth < 768) { 
+              basePlanetY = 4.5; corazonesGroup.position.set(1.2, basePlanetY, -4); corazonesGroup.scale.set(0.5, 0.5, 0.5); 
+              galaxiaGroup.scale.set(0.6, 0.6, 0.6); constelacionGroup.scale.set(0.7, 0.7, 0.7); 
+          } else { 
+              basePlanetY = 3; corazonesGroup.position.set(4, basePlanetY, -2); corazonesGroup.scale.set(1, 1, 1); 
+              galaxiaGroup.scale.set(1, 1, 1); constelacionGroup.scale.set(1, 1, 1); 
+          }
+          if(estado === 0) targetPlanetY = basePlanetY;
+      }
+      window.addEventListener('resize', actualizarLayout3D); actualizarLayout3D(); 
+
+      const btnGalaxia = document.getElementById('btn-galaxia');
+      const btnConstelacion = document.getElementById('btn-constelacion');
+      const btnVolver = document.getElementById('btn-volver');
+      let enViaje = false; 
+
+      btnGalaxia.addEventListener('click', () => {
+          if(enViaje) return; enViaje = true; estado = 1;
+          
+          document.getElementById('zona-scroll').style.display = 'none';
+          document.getElementById('ui-textos').style.opacity = '0';
+          btnGalaxia.classList.add('oculto');
+          document.getElementById('lluvia-meteoritos').style.opacity = '0';
+          document.getElementById('universo-fondo').style.opacity = '0';
+          document.getElementById('nebulosa').style.opacity = '0'; 
+          
+          targetPlanetY = -40; 
+          galaxiaGroup.visible = true; galaxiaGroup.position.z = -100; 
+          targetGalaxiaZ = -3; targetCameraZ = 6; 
+          
+          setTimeout(() => { document.getElementById('ui-galaxia').classList.remove('oculto-total'); enViaje = false; }, 3000);
+      });
+
+      btnConstelacion.addEventListener('click', () => {
+          if(enViaje) return; enViaje = true; estado = 2;
+          
+          document.getElementById('ui-galaxia').classList.add('oculto-total');
+          targetGalaxiaZ = 20; 
+          
+          constelacionGroup.visible = true; constelacionGroup.position.z = -80; targetConstelacionZ = -6; 
+          
+          setTimeout(() => {
+              galaxiaGroup.visible = false; 
+              document.getElementById('ui-constelacion').classList.remove('oculto-total');
+              enViaje = false;
+          }, 2500);
+      });
+
+      btnVolver.addEventListener('click', () => {
+          if(enViaje) return; enViaje = true; estado = 0;
+          
+          document.getElementById('ui-constelacion').classList.add('oculto-total');
+          targetConstelacionZ = 20; 
+          targetCameraZ = 12; targetPlanetY = basePlanetY; targetGalaxiaZ = -150; 
+          
+          setTimeout(() => {
+              constelacionGroup.visible = false;
+              document.getElementById('zona-scroll').style.display = 'block';
+              document.getElementById('lluvia-meteoritos').style.opacity = '1';
+              document.getElementById('universo-fondo').style.opacity = '1';
+              document.getElementById('nebulosa').style.opacity = '1'; 
+              document.getElementById('ui-textos').style.opacity = '1';
+              window.dispatchEvent(new Event('scroll'));
+              enViaje = false;
+          }, 2500);
+      });
+
+      let tiempoShader = 0;
+      
+      function animarLluvia(puntos) {
+          const posiciones = puntos.geometry.attributes.position.array;
+          const velocidades = puntos.geometry.attributes.velocity.array;
+          for(let i=0; i<posiciones.length/3; i++) {
+              posiciones[i*3] += velocidades[i*3];
+              posiciones[i*3+1] += velocidades[i*3+1]; 
+              posiciones[i*3+2] += velocidades[i*3+2];
+              if(posiciones[i*3+1] < -30) {
+                  posiciones[i*3+1] = 40;
+                  posiciones[i*3] = (Math.random() - 0.5) * 80;
+              }
+          }
+          puntos.geometry.attributes.position.needsUpdate = true;
+      }
+
+      function animate3D() {
+        requestAnimationFrame(animate3D);
+        camera.position.x += (mouseX*2 - camera.position.x) * 0.05; camera.position.y += (-mouseY*2 - camera.position.y) * 0.05; camera.lookAt(scene.position);
+
+        camera.position.z += (targetCameraZ - camera.position.z) * 0.04;
+        corazonesGroup.position.y += (targetPlanetY - corazonesGroup.position.y) * 0.03;
+        
+        galaxiaGroup.position.z += (targetGalaxiaZ - galaxiaGroup.position.z) * 0.03;
+        constelacionGroup.position.z += (targetConstelacionZ - constelacionGroup.position.z) * 0.04;
+
+        corazonCentral.rotation.y += 0.01;
+        corazonCentral.position.y = Math.sin(Date.now() * 0.002) * 0.2; 
+        
+        pequenosCorazones.forEach(pc => {
+            pc.angulo += pc.velocidad;
+            pc.mesh.position.x = Math.cos(pc.angulo) * pc.distancia;
+            pc.mesh.position.z = Math.sin(pc.angulo) * pc.distancia;
+            pc.mesh.rotation.x += 0.02;
+            pc.mesh.rotation.y += 0.03;
+        });
+        
+        tiempoShader += 0.01; starUniforms.uTime.value = tiempoShader;
+
+        if(galaxiaGroup.visible) { galaxiaGroup.rotation.y += 0.0015; galaxiaGroup.rotation.z += 0.0005; }
+        
+        if(constelacionGroup.visible) { 
+            animarLluvia(lluviaCorazones);
+            animarLluvia(lluviaFlores);
+            animarLluvia(lluviaBrillos);
+        }
+
+        renderer.render(scene, camera);
+      }
+      animate3D();
+
+      // ==========================================
+      // CONTROLADOR DE SCROLL 2D
+      // ==========================================
+      const canvasFondo = document.getElementById('universo-fondo');
+      const ctxFondo = canvasFondo.getContext('2d');
+      const foto = document.getElementById('foto-annarella');
+      const textoCumple = document.getElementById('texto-cumple');
+      const btnGalaxiaScroll = document.getElementById('btn-galaxia');
+      const indicadorScroll = document.getElementById('indicador-scroll');
+      
+      let width, height, estrellasFondo = []; 
+      function iniciarFondo() {
+        width = canvasFondo.width = window.innerWidth; height = canvasFondo.height = window.innerHeight; estrellasFondo = [];
+        for (let i = 0; i < (width < 768 ? 150 : 300); i++) estrellasFondo.push({ x: Math.random() * width, y: Math.random() * height, tamano: Math.random() * 1.5, faseBrillo: Math.random() * Math.PI * 2, velocidadBrillo: Math.random() * 0.5 + 0.2 });
+      }
+      
+      window.addEventListener('scroll', () => {
+        if(estado !== 0) return;
+        const scrollMaximo = document.body.scrollHeight - window.innerHeight;
+        const p = Math.min(Math.max(window.scrollY / scrollMaximo, 0), 1);
+        
+        indicadorScroll.style.opacity = p > 0.05 ? '0' : '0.7';
+        
+        let pFoto = Math.min(Math.max((p - 0.2) * 2, 0), 1);
+        foto.style.opacity = pFoto; foto.style.transform = `translate(-50%, ${50 - pFoto*50}px) scale(${0.8 + pFoto*0.2})`;
+        
+        let pTexto = Math.min(Math.max((p - 0.5) * 2.5, 0), 1);
+        textoCumple.style.opacity = pTexto; textoCumple.style.transform = `translate(-50%, ${30 - pTexto*30}px) scale(${0.9 + pTexto*0.1})`;
+
+        if (p > 0.85) { btnGalaxiaScroll.classList.remove('oculto'); btnGalaxiaScroll.style.pointerEvents = 'auto'; } 
+        else { btnGalaxiaScroll.classList.add('oculto'); btnGalaxiaScroll.style.pointerEvents = 'none'; }
+      });
+
+      function animarFondo() {
+        ctxFondo.clearRect(0, 0, width, height); const t = Date.now() * 0.001; 
+        estrellasFondo.forEach(e => {
+          ctxFondo.fillStyle = `rgba(255, 182, 193, ${0.3 + (Math.sin(t * e.velocidadBrillo + e.faseBrillo) * 0.4)})`; 
+          ctxFondo.beginPath(); ctxFondo.arc(e.x, e.y, e.tamano, 0, Math.PI * 2); ctxFondo.fill();
+        }); requestAnimationFrame(animarFondo);
+      }
+      window.addEventListener('resize', iniciarFondo); iniciarFondo(); animarFondo();
+    </script>
+  </body>
+</html>
