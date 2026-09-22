@@ -112,7 +112,7 @@
       });
 
       // ==========================================
-      // MOTOR 3D: CORAZONES, GALAXIA Y CONSTELACIÓN
+      // MOTOR 3D: GALAXIA MÁGICA DE POLVO DE ESTRELLAS
       // ==========================================
       const THREE = window.THREE; 
       const contenedor3D = document.getElementById('contenedor-3d');
@@ -124,13 +124,11 @@
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
       contenedor3D.appendChild(renderer.domElement);
 
-      const textureLoader = new THREE.TextureLoader();
-
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.6); scene.add(ambientLight);
       const sunLight = new THREE.DirectionalLight(0xffffff, 2.5); sunLight.position.set(-10, 10, 10); scene.add(sunLight);
       const pinkLight = new THREE.PointLight(0xff1493, 2, 20); pinkLight.position.set(5, 0, 5); scene.add(pinkLight);
 
-      // --- GENERADOR DE TEXTURAS (EMOJIS PARA PARTÍCULAS) ---
+      // --- GENERADOR DE TEXTURAS ---
       function crearTexturaEmoji(emoji) {
           const canvas = document.createElement('canvas');
           canvas.width = 128; canvas.height = 128;
@@ -145,11 +143,10 @@
       const texFlor = crearTexturaEmoji('🌸');
       const texBrillo = crearTexturaEmoji('✨');
 
-      // --- 1. SISTEMA INICIAL: CORAZONES 3D FLOTANTES (REEMPLAZA A LA TIERRA) ---
+      // --- 1. SISTEMA INICIAL: CORAZÓN 3D DE CRISTAL ---
       const corazonesGroup = new THREE.Group();
       scene.add(corazonesGroup);
 
-      // Creamos la forma matemática de un corazón 3D
       const heartShape = new THREE.Shape();
       heartShape.moveTo(0, 1.5);
       heartShape.bezierCurveTo(2, 1.5, 2, -1, 0, -3);
@@ -157,27 +154,19 @@
       
       const extrudeSettings = { depth: 0.5, bevelEnabled: true, bevelSegments: 4, steps: 2, bevelSize: 0.3, bevelThickness: 0.3 };
       const heartGeo = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
-      heartGeo.center(); // Centramos la geometría
+      heartGeo.center(); 
 
-      // Material de cristal rosado brillante
       const heartMat = new THREE.MeshPhysicalMaterial({ 
-          color: 0xff69b4, 
-          metalness: 0.2, 
-          roughness: 0.1, 
-          clearcoat: 1.0, 
-          clearcoatRoughness: 0.1,
-          emissive: 0x330011 
+          color: 0xff69b4, metalness: 0.2, roughness: 0.1, clearcoat: 1.0, clearcoatRoughness: 0.1, emissive: 0x330011 
       });
       const miniHeartMat = new THREE.MeshPhysicalMaterial({ 
           color: 0xffb6c1, metalness: 0.3, roughness: 0.2, clearcoat: 1.0 
       });
 
-      // Corazón Central Grande
       const corazonCentral = new THREE.Mesh(heartGeo, heartMat);
       corazonCentral.scale.set(0.8, 0.8, 0.8);
       corazonesGroup.add(corazonCentral);
 
-      // Mini corazones orbitando (Asteroides Cuchi)
       const pequenosCorazones = [];
       for(let i=0; i<8; i++) {
           const miniC = new THREE.Mesh(heartGeo, miniHeartMat);
@@ -185,14 +174,8 @@
           const angulo = (i / 8) * Math.PI * 2;
           const distancia = 3.5 + Math.random() * 1.5;
           miniC.position.set(Math.cos(angulo)*distancia, (Math.random()-0.5)*3, Math.sin(angulo)*distancia);
-          
           corazonesGroup.add(miniC);
-          pequenosCorazones.push({
-              mesh: miniC,
-              angulo: angulo,
-              distancia: distancia,
-              velocidad: 0.01 + Math.random() * 0.02
-          });
+          pequenosCorazones.push({ mesh: miniC, angulo: angulo, distancia: distancia, velocidad: 0.01 + Math.random() * 0.02 });
       }
 
       // --- SHADER ESTRELLAS ÉPICAS ---
@@ -218,70 +201,55 @@
           transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, vertexColors: true
       });
 
-      // --- 2. LA GALAXIA REDISEÑADA (MÁS HERMOSA Y ESPONJOSA) ---
+      // --- 2. LA GALAXIA ELEGANTE (SIN EMOJIS, SOLO POLVO MÁGICO) ---
       const galaxiaGroup = new THREE.Group();
       scene.add(galaxiaGroup);
       galaxiaGroup.visible = false; galaxiaGroup.position.z = -150; galaxiaGroup.rotation.x = 1.0; 
 
-      function crearGalaxia(cantidad, radioGalaxia) {
+      function crearGalaxiaMágica(cantidad, radioGalaxia) {
           const geo = new THREE.BufferGeometry();
           const pos = new Float32Array(cantidad * 3), col = new Float32Array(cantidad * 3), siz = new Float32Array(cantidad), pha = new Float32Array(cantidad);
           
-          const colorCentro = new THREE.Color(0xffffff); // Blanco puro en el núcleo
-          const colorRosa = new THREE.Color(0xff69b4);   // Hot Pink
-          const colorLila = new THREE.Color(0xdda0dd);   // Lila hermoso
+          const colorCentro = new THREE.Color(0xffffff); // Blanco puro luminoso
+          const colorRosa = new THREE.Color(0xff99cc);   // Rosa pastel
+          const colorLila = new THREE.Color(0xcc99ff);   // Lila hermoso
+          const colorAzul = new THREE.Color(0x99ccff);   // Azulito suave
           
           for(let i = 0; i < cantidad; i++) {
-              // Núcleo muy denso, brazos esponjosos
-              const distribucion = Math.pow(Math.random(), 3.5); 
+              const distribucion = Math.pow(Math.random(), 3.0); 
               const radio = distribucion * radioGalaxia; 
               
-              const angulo = (i % 6) * ((Math.PI * 2) / 6); // 6 brazos suaves
-              const giro = radio * 0.4; 
-              
-              // Dispersión mayor para efecto "nube" y no línea
-              const dispersionRadio = 5.0; 
+              const angulo = (i % 5) * ((Math.PI * 2) / 5);
+              const giro = radio * 0.45; 
+              const dispersionRadio = 4.5; 
               const dispersionX = (Math.random() - 0.5) * (radio / radioGalaxia) * dispersionRadio * 2;
               const dispersionZ = (Math.random() - 0.5) * (radio / radioGalaxia) * dispersionRadio * 2;
-              const alturaBulge = (Math.random() - 0.5) * 8.0 * Math.exp(-radio/1.5);
+              const alturaBulge = (Math.random() - 0.5) * 6.0 * Math.exp(-radio/2);
 
               pos[i*3] = Math.cos(angulo + giro) * radio + dispersionX;
               pos[i*3+1] = alturaBulge;
               pos[i*3+2] = Math.sin(angulo + giro) * radio + dispersionZ;
               
               let mixedColor = colorCentro.clone();
-              if(radio > 1.5) mixedColor.lerp(i%2==0 ? colorRosa : colorLila, radio / (radioGalaxia * 0.6));
+              if(radio > 1.0) {
+                  const colorBrazo = i % 2 === 0 ? colorRosa : (i % 3 === 0 ? colorAzul : colorLila);
+                  mixedColor.lerp(colorBrazo, radio / (radioGalaxia * 0.8));
+              }
               let intensidad = Math.max(0.3, 1.5 - (radio / radioGalaxia));
               mixedColor.multiplyScalar(intensidad);
 
               col[i*3] = mixedColor.r; col[i*3+1] = mixedColor.g; col[i*3+2] = mixedColor.b;
-              siz[i] = Math.random() * 3.5 + 1.5; 
+              // Estrellas finas y elegantes
+              siz[i] = Math.random() * 2.5 + 0.8; 
               pha[i] = Math.random() * Math.PI * 2;
           }
           geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
           geo.setAttribute('size', new THREE.BufferAttribute(siz, 1)); geo.setAttribute('phase', new THREE.BufferAttribute(pha, 1));
           return geo;
       }
-      galaxiaGroup.add(new THREE.Points(crearGalaxia(22000, 32), materialEstrellas));
+      galaxiaGroup.add(new THREE.Points(crearGalaxiaMágica(25000, 32), materialEstrellas));
 
-      // Agregar corazones flotantes DE LA GALAXIA (Material independiente)
-      function crearCorazonesGalaxia(cantidad, radioGalaxia) {
-          const geo = new THREE.BufferGeometry();
-          const pos = new Float32Array(cantidad * 3);
-          for(let i = 0; i < cantidad; i++) {
-              const radio = Math.random() * radioGalaxia;
-              const angulo = Math.random() * Math.PI * 2;
-              pos[i*3] = Math.cos(angulo) * radio;
-              pos[i*3+1] = (Math.random() - 0.5) * 4.0;
-              pos[i*3+2] = Math.sin(angulo) * radio;
-          }
-          geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-          const mat = new THREE.PointsMaterial({ size: 4.0, map: texCorazon, transparent: true, depthWrite: false });
-          return new THREE.Points(geo, mat);
-      }
-      galaxiaGroup.add(crearCorazonesGalaxia(300, 30));
-
-      // --- 3. CONSTELACIÓN DE LIBRA ESTÁTICA Y ROMÁNTICA ---
+      // --- 3. CONSTELACIÓN DE LIBRA ---
       const constelacionGroup = new THREE.Group();
       scene.add(constelacionGroup);
       constelacionGroup.position.z = -150; 
@@ -407,7 +375,7 @@
           document.getElementById('universo-fondo').style.opacity = '0';
           document.getElementById('nebulosa').style.opacity = '0'; 
           
-          targetPlanetY = -40; // Los corazones bajan y se ocultan
+          targetPlanetY = -40; 
           galaxiaGroup.visible = true; galaxiaGroup.position.z = -100; 
           targetGalaxiaZ = -3; targetCameraZ = 6; 
           
@@ -475,9 +443,8 @@
         galaxiaGroup.position.z += (targetGalaxiaZ - galaxiaGroup.position.z) * 0.03;
         constelacionGroup.position.z += (targetConstelacionZ - constelacionGroup.position.z) * 0.04;
 
-        // Animación suave de los corazones iniciales
         corazonCentral.rotation.y += 0.01;
-        corazonCentral.position.y = Math.sin(Date.now() * 0.002) * 0.2; // Flote suave
+        corazonCentral.position.y = Math.sin(Date.now() * 0.002) * 0.2; 
         
         pequenosCorazones.forEach(pc => {
             pc.angulo += pc.velocidad;
@@ -596,6 +563,7 @@
   .contenedor-scroll { position: relative; height: 350vh; z-index: 20; }
   .indicador { position: fixed; top: 5%; width: 100%; text-align: center; pointer-events: none; transition: opacity 0.5s; text-shadow: 0px 0px 10px rgba(255,255,255,0.5); }
 
+  /* Meteoritos rosados/mágicos */
   .estrella-fugaz, .meteorito { position: fixed; border-radius: 50%; opacity: 0; }
   .estrella-fugaz { width: 3px; height: 3px; background: #fff0f5; box-shadow: 0 0 10px #fff0f5; }
   .estrella-fugaz::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); width: 150px; height: 1px; background: linear-gradient(90deg, rgba(255,182,193,0.8), transparent); }
